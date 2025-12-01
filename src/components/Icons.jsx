@@ -64,7 +64,7 @@ export const MoreIcon = ({ className = "w-5 h-5" }) => (
       fillRule="evenodd" 
       clipRule="evenodd" 
       d="M5 11.6654C4.0775 11.6654 3.33333 10.9195 3.33333 9.9987C3.33333 9.07703 4.0775 8.33203 5 8.33203C5.92083 8.33203 6.66667 9.07703 6.66667 9.9987C6.66667 10.9195 5.92083 11.6654 5 11.6654ZM8.33333 9.9987C8.33333 10.9195 9.08 11.6654 10 11.6654C10.9217 11.6654 11.6667 10.9195 11.6667 9.9987C11.6667 9.07703 10.9217 8.33203 10 8.33203C9.08 8.33203 8.33333 9.07703 8.33333 9.9987ZM13.3333 9.9987C13.3333 10.9195 14.0792 11.6654 15 11.6654C15.9208 11.6654 16.6667 10.9195 16.6667 9.9987C16.6667 9.07703 15.9208 8.33203 15 8.33203C14.0792 8.33203 13.3333 9.07703 13.3333 9.9987Z" 
-      fill="currentColor"
+      fill="#474747"
     />
   </svg>
 );
@@ -255,6 +255,18 @@ export const DocumentPortraitIcon = ({ className = "w-6 h-6" }) => (
     />
     <path
       d="M14 2v6h6"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const XIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M18 6L6 18M6 6l12 12"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
