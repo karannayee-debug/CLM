@@ -1,16 +1,26 @@
-import React from 'react';
-import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon } from './Icons';
+import React, { useState } from 'react';
+import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon, ChevronRightIcon } from './Icons';
 import DocumentsTable from './DocumentsTable';
 import Badge from './Badge';
 
-const MainContent = () => {
+const MainContent = ({ importedDocuments = [], currentTab, onTabChange, onOpenDocumentModal }) => {
+  const [currentFolder, setCurrentFolder] = useState(null);
+
+  const handleFolderClick = (folder) => {
+    setCurrentFolder(folder);
+  };
+
+  const handleBackToAllDocuments = () => {
+    setCurrentFolder(null);
+  };
+
   const tabs = [
-    { label: 'Recent', active: false },
-    { label: 'All documents', active: true },
-    { label: 'Created by me', active: false },
-    { label: 'Imported', active: false, badge: 'NEW' },
-    { label: 'Archived', active: false },
-    { label: 'More', active: false, badge: '6', hasDropdown: true }
+    { label: 'Recent', active: currentTab === 'Recent' },
+    { label: 'All documents', active: currentTab === 'All documents' },
+    { label: 'Created by me', active: currentTab === 'Created by me' },
+    { label: 'Imported', active: currentTab === 'Imported', badge: 'NEW' },
+    { label: 'Archived', active: currentTab === 'Archived' },
+    { label: 'More', active: currentTab === 'More', badge: '6', hasDropdown: true }
   ];
 
   const filters = [
@@ -21,6 +31,10 @@ const MainContent = () => {
     'Recipients'
   ];
 
+  const handleTabClick = (tabLabel) => {
+    onTabChange(tabLabel);
+  };
+
   return (
     <div className="w-full bg-white">
       <div className="p-15 max-w-none">
@@ -29,7 +43,7 @@ const MainContent = () => {
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               <h1 className="text-24 font-graphik-bold text-secondary-dark">
-                All documents
+                {currentFolder ? currentFolder.name : 'All documents'}
               </h1>
             </div>
               <div className="flex items-center gap-3">
@@ -38,7 +52,10 @@ const MainContent = () => {
                   New folder
                 </button>
                 <div className="flex rounded shadow-subtle overflow-hidden">
-                  <button className="px-4 py-2.5 bg-brand-primary text-white text-14 font-graphik-semibold hover:bg-brand-primary/90 transition-colors flex items-center gap-2 h-10">
+                  <button 
+                    onClick={onOpenDocumentModal}
+                    className="px-4 py-2.5 bg-brand-primary text-white text-14 font-graphik-semibold hover:bg-brand-primary/90 transition-colors flex items-center gap-2 h-10"
+                  >
                     <PlusIcon className="w-6 h-6" />
                     Document
                   </button>
@@ -49,13 +66,34 @@ const MainContent = () => {
               </div>
           </div>
 
-          {/* Tabs */}
-          <div className="border-b border-gray-200">
+          {/* Breadcrumbs (shown when in folder view) */}
+          {currentFolder && (
+            <div className="mb-6">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleBackToAllDocuments}
+                  className="text-14 font-graphik-regular text-secondary-light hover:text-brand-primary transition-colors"
+                >
+                  All documents
+                </button>
+                <ChevronRightIcon className="w-4 h-4 text-secondary-light" />
+                <span className="text-14 font-graphik-semibold text-secondary-dark">
+                  {currentFolder.name}
+                </span>
+                <ChevronDownIcon className="w-4 h-4 text-secondary-light" />
+              </div>
+            </div>
+          )}
+
+          {/* Tabs (hide when in folder view) */}
+          {!currentFolder && (
+            <div className="border-b border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">
                 {tabs.map((tab, index) => (
                   <div key={index} className="relative">
                     <button
+                      onClick={() => handleTabClick(tab.label)}
                       className={`flex items-center gap-2 h-12 px-0 text-14 font-graphik-${tab.active ? 'semibold' : 'regular'} ${
                         tab.active ? 'text-secondary-dark border-b-2 border-brand-primary' : 'text-secondary-dark hover:text-secondary-dark/80'
                       } transition-colors`}
@@ -108,10 +146,12 @@ const MainContent = () => {
               </div>
             </div>
           </div>
+          )}
         </div>
 
-        {/* Filters Row */}
-        <div className="mb-6">
+        {/* Filters Row (hide when in folder view) */}
+        {!currentFolder && (
+          <div className="mb-6">
           <div className="flex items-center gap-3">
             {filters.map((filter, index) => (
               <button
@@ -128,9 +168,13 @@ const MainContent = () => {
             </button>
           </div>
         </div>
+        )}
 
         {/* Documents Table */}
-        <DocumentsTable />
+        <DocumentsTable 
+          currentFolder={currentFolder}
+          onFolderClick={handleFolderClick}
+        />
       </div>
     </div>
   );

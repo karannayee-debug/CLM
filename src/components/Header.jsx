@@ -34,7 +34,7 @@ const Header = () => {
         {/* User Profile */}
         <button className="p-1 hover:bg-gray-50 rounded-lg transition-colors">
           <Avatar 
-            src="/images/User profile.png" 
+            src="/CLM/images/user-profile.png" 
             alt="User Profile" 
             size="sm" 
           />

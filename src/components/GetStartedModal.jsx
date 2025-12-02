@@ -15,11 +15,11 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
       {/* Modal */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div 
-          className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh] overflow-y-auto"
+          className="relative w-full max-w-4xl bg-white rounded-lg shadow-xl max-h-[90vh] flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
             <h2 className="text-24 font-graphik-bold text-secondary-dark">
               Get started
             </h2>
@@ -31,8 +31,8 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
             </button>
           </div>
 
-          {/* Content */}
-          <div className="p-6">
+          {/* Content - Scrollable */}
+          <div className="p-6 overflow-y-auto flex-1">
             {/* Upload Zone */}
             <div className="mb-8 p-12 border-2 border-dashed border-gray-300 rounded-lg text-center bg-gray-50">
               <div className="mb-4">
@@ -152,7 +152,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 1.png" 
+                      src="/CLM/images/Template 1.png" 
                       alt="Software Development Proposal Template"
                       className="w-full h-full object-cover"
                     />
@@ -166,7 +166,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 2.png" 
+                      src="/CLM/images/Template 2.png" 
                       alt="Agency Agreement Template"
                       className="w-full h-full object-cover"
                     />
@@ -180,7 +180,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 3.png" 
+                      src="/CLM/images/Template 3.png" 
                       alt="Executive Summary Template"
                       className="w-full h-full object-cover"
                     />
@@ -194,7 +194,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 4.png" 
+                      src="/CLM/images/Template 4.png" 
                       alt="Construction Proposal Template"
                       className="w-full h-full object-cover"
                     />
@@ -208,7 +208,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 5.png" 
+                      src="/CLM/images/Template 5.png" 
                       alt="Mobile App Development Proposal"
                       className="w-full h-full object-cover"
                     />
@@ -222,7 +222,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 6.png" 
+                      src="/CLM/images/Template 6.png" 
                       alt="Event Sponsorship Proposal"
                       className="w-full h-full object-cover"
                     />
@@ -236,7 +236,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 7.png" 
+                      src="/CLM/images/Template 7.png" 
                       alt="Product Launch Template"
                       className="w-full h-full object-cover"
                     />
@@ -250,7 +250,7 @@ const GetStartedModal = ({ isOpen, onClose, onOpenGmailImport }) => {
                 <div className="group cursor-pointer">
                   <div className="aspect-[3/4] rounded-lg mb-3 hover:shadow-lg transition-shadow overflow-hidden">
                     <img 
-                      src="images/Template 8.png" 
+                      src="/CLM/images/Template 8.png" 
                       alt="Executive Summary Template"
                       className="w-full h-full object-cover"
                     />

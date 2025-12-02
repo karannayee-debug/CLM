@@ -140,3 +140,4 @@ The prototype matches the original Figma design with:
 - Accurate status label styling
 - Proper table layout and alignment
 - Authentic icon and button styles
+

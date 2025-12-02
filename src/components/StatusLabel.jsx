@@ -26,3 +26,4 @@ const StatusLabel = ({ type, children }) => {
 };
 
 export default StatusLabel;
+
