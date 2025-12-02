@@ -3,15 +3,18 @@ import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon, Che
 import DocumentsTable from './DocumentsTable';
 import Badge from './Badge';
 
-const MainContent = ({ importedDocuments = [], currentTab, onTabChange, onOpenDocumentModal }) => {
-  const [currentFolder, setCurrentFolder] = useState(null);
+const MainContent = ({ importedDocuments = [], importedOrganizationSettings = null, currentTab, onTabChange, currentFolder, onFolderChange, onOpenDocumentModal }) => {
+  // Reset folder when switching tabs
+  React.useEffect(() => {
+    onFolderChange(null);
+  }, [currentTab, onFolderChange]);
 
   const handleFolderClick = (folder) => {
-    setCurrentFolder(folder);
+    onFolderChange(folder);
   };
 
   const handleBackToAllDocuments = () => {
-    setCurrentFolder(null);
+    onFolderChange(null);
   };
 
   const tabs = [
@@ -43,7 +46,7 @@ const MainContent = ({ importedDocuments = [], currentTab, onTabChange, onOpenDo
           <div className="flex items-center justify-between mb-6">
             <div className="flex-1">
               <h1 className="text-24 font-graphik-bold text-secondary-dark">
-                {currentFolder ? currentFolder.name : 'All documents'}
+                {currentFolder ? currentFolder.name : (currentTab === 'Imported' ? 'Imported' : 'All documents')}
               </h1>
             </div>
               <div className="flex items-center gap-3">
@@ -74,8 +77,20 @@ const MainContent = ({ importedDocuments = [], currentTab, onTabChange, onOpenDo
                   onClick={handleBackToAllDocuments}
                   className="text-14 font-graphik-regular text-secondary-light hover:text-brand-primary transition-colors"
                 >
-                  All documents
+                  {currentTab === 'Imported' ? 'Imported' : 'All documents'}
                 </button>
+                {currentFolder.parentPath && currentFolder.parentPath.length > 0 && (
+                  <>
+                    {currentFolder.parentPath.map((parent, index) => (
+                      <React.Fragment key={index}>
+                        <ChevronRightIcon className="w-4 h-4 text-secondary-light" />
+                        <span className="text-14 font-graphik-regular text-secondary-light">
+                          {parent}
+                        </span>
+                      </React.Fragment>
+                    ))}
+                  </>
+                )}
                 <ChevronRightIcon className="w-4 h-4 text-secondary-light" />
                 <span className="text-14 font-graphik-semibold text-secondary-dark">
                   {currentFolder.name}
@@ -174,6 +189,9 @@ const MainContent = ({ importedDocuments = [], currentTab, onTabChange, onOpenDo
         <DocumentsTable 
           currentFolder={currentFolder}
           onFolderClick={handleFolderClick}
+          importedDocuments={importedDocuments}
+          importedOrganizationSettings={importedOrganizationSettings}
+          currentTab={currentTab}
         />
       </div>
     </div>

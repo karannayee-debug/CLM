@@ -4,7 +4,6 @@ import GmailConnection from './GmailConnection';
 import DocumentDiscovery from './DocumentDiscovery';
 import DocumentSelection from './DocumentSelection';
 import FolderOrganization from './FolderOrganization';
-import ImportProgress from './ImportProgress';
 import { allGmailDocuments } from '../data/mockGmailDocuments';
 
 const STEPS = {
@@ -12,7 +11,7 @@ const STEPS = {
   DISCOVERY: 'discovery',
   SELECTION: 'selection',
   ORGANIZATION: 'organization',
-  PROGRESS: 'progress',
+  IMPORTING: 'importing',
   SUCCESS: 'success'
 };
 
@@ -85,18 +84,20 @@ const GmailImportModal = ({ isOpen, onClose, onImportComplete }) => {
     setOrganizationSettings(settings);
   };
 
-  const handleStartImport = () => {
-    setCurrentStep(STEPS.PROGRESS);
+  const handleStartImport = async () => {
+    // Show importing state
+    setCurrentStep(STEPS.IMPORTING);
+    
+    // Simulate import delay (2-3 seconds)
+    await new Promise(resolve => setTimeout(resolve, 2500));
+    
+    // Show success
+    setCurrentStep(STEPS.SUCCESS);
   };
 
-  const handleImportComplete = (importedDocuments) => {
-    setCurrentStep(STEPS.SUCCESS);
-    
-    // Auto-close modal and navigate to imported tab after success display
-    setTimeout(() => {
-      onImportComplete(importedDocuments, organizationSettings);
-      onClose();
-    }, 3000);
+  const handleViewFiles = () => {
+    onImportComplete(selectedDocuments, organizationSettings);
+    onClose();
   };
 
   const getStepTitle = () => {
@@ -109,7 +110,7 @@ const GmailImportModal = ({ isOpen, onClose, onImportComplete }) => {
         return 'Select Documents';
       case STEPS.ORGANIZATION:
         return 'Organize Documents';
-      case STEPS.PROGRESS:
+      case STEPS.IMPORTING:
         return 'Importing Documents';
       case STEPS.SUCCESS:
         return 'Import Complete';
@@ -153,13 +154,19 @@ const GmailImportModal = ({ isOpen, onClose, onImportComplete }) => {
             onStartImport={handleStartImport}
           />
         );
-      case STEPS.PROGRESS:
+      case STEPS.IMPORTING:
         return (
-          <ImportProgress
-            documents={selectedDocuments}
-            organizationSettings={organizationSettings}
-            onComplete={handleImportComplete}
-          />
+          <div className="text-center py-8">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-brand-primary/10">
+              <div className="w-8 h-8 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <h3 className="text-18 font-graphik-bold text-secondary-dark mb-2">
+              Importing Documents
+            </h3>
+            <p className="text-14 font-graphik-regular text-secondary-light">
+              Please wait while we import {selectedDocuments.length} documents...
+            </p>
+          </div>
         );
       case STEPS.SUCCESS:
         return (
@@ -172,12 +179,15 @@ const GmailImportModal = ({ isOpen, onClose, onImportComplete }) => {
             <h3 className="text-18 font-graphik-bold text-secondary-dark mb-2">
               Import Successful!
             </h3>
-            <p className="text-14 font-graphik-regular text-secondary-light mb-4">
+            <p className="text-14 font-graphik-regular text-secondary-light mb-6">
               {selectedDocuments.length} documents have been imported successfully.
             </p>
-            <p className="text-13 font-graphik-regular text-secondary-light">
-              Redirecting to Imported tab...
-            </p>
+            <button
+              onClick={handleViewFiles}
+              className="px-6 py-2.5 bg-brand-primary text-white text-14 font-graphik-semibold rounded-lg hover:bg-brand-primary/90 transition-colors"
+            >
+              View files
+            </button>
           </div>
         );
       default:

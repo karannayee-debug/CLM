@@ -9,7 +9,9 @@ function App() {
   const [isGmailImportModalOpen, setIsGmailImportModalOpen] = useState(false);
   const [isGetStartedModalOpen, setIsGetStartedModalOpen] = useState(false);
   const [importedDocuments, setImportedDocuments] = useState([]);
+  const [importedOrganizationSettings, setImportedOrganizationSettings] = useState(null);
   const [currentTab, setCurrentTab] = useState('All documents');
+  const [currentFolder, setCurrentFolder] = useState(null);
 
   const handleOpenGmailImport = () => {
     setIsGmailImportModalOpen(true);
@@ -32,13 +34,14 @@ function App() {
     const documentsWithImportInfo = documents.map(doc => ({
       ...doc,
       isImported: true,
-      importDate: new Date().toISOString(),
-      organization: organizationSettings
+      importDate: new Date().toISOString()
     }));
     
     setImportedDocuments(prev => [...prev, ...documentsWithImportInfo]);
+    setImportedOrganizationSettings(organizationSettings);
     
-    // Switch to imported tab
+    // Reset folder navigation and switch to imported tab root
+    setCurrentFolder(null);
     setCurrentTab('Imported');
   };
 
@@ -60,8 +63,11 @@ function App() {
         <main className="flex-1 overflow-auto">
           <MainContent 
             importedDocuments={importedDocuments}
+            importedOrganizationSettings={importedOrganizationSettings}
             currentTab={currentTab}
             onTabChange={setCurrentTab}
+            currentFolder={currentFolder}
+            onFolderChange={setCurrentFolder}
             onOpenDocumentModal={handleOpenGetStarted}
           />
         </main>
