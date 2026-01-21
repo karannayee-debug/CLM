@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://ateslenko.github.io/CLM",
+  "homepage": "https://karannayee-debug.github.io/CLM",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
