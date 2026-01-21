@@ -3,11 +3,11 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import MainContent from './components/MainContent';
 import GmailImportModal from './components/GmailImportModal';
-import GetStartedModal from './components/GetStartedModal';
+import GetStartedPage from './components/GetStartedPage';
 
 function App() {
   const [isGmailImportModalOpen, setIsGmailImportModalOpen] = useState(false);
-  const [isGetStartedModalOpen, setIsGetStartedModalOpen] = useState(false);
+  const [showGetStartedPage, setShowGetStartedPage] = useState(false);
   const [importedDocuments, setImportedDocuments] = useState([]);
   const [importedOrganizationSettings, setImportedOrganizationSettings] = useState(null);
   const [currentTab, setCurrentTab] = useState('All documents');
@@ -22,11 +22,11 @@ function App() {
   };
 
   const handleOpenGetStarted = () => {
-    setIsGetStartedModalOpen(true);
+    setShowGetStartedPage(true);
   };
 
   const handleCloseGetStarted = () => {
-    setIsGetStartedModalOpen(false);
+    setShowGetStartedPage(false);
   };
 
   const handleImportComplete = (documents, organizationSettings) => {
@@ -44,6 +44,18 @@ function App() {
     setCurrentFolder(null);
     setCurrentTab('Imported');
   };
+
+  // Show Get Started Page (full page view without sidebar)
+  if (showGetStartedPage) {
+    return (
+      <div className="h-screen bg-white overflow-hidden">
+        <GetStartedPage 
+          onClose={handleCloseGetStarted} 
+          onOpenGmailImport={handleOpenGmailImport}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">
@@ -72,13 +84,6 @@ function App() {
           />
         </main>
       </div>
-
-      {/* Get Started Modal */}
-      <GetStartedModal
-        isOpen={isGetStartedModalOpen}
-        onClose={handleCloseGetStarted}
-        onOpenGmailImport={handleOpenGmailImport}
-      />
 
       {/* Gmail Import Modal */}
       <GmailImportModal
