@@ -3,7 +3,7 @@ import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon, Che
 import DocumentsTable from './DocumentsTable';
 import Badge from './Badge';
 
-const MainContent = ({ importedDocuments = [], importedOrganizationSettings = null, currentTab, onTabChange, currentFolder, onFolderChange, onOpenDocumentModal }) => {
+const MainContent = ({ importedDocuments = [], importedOrganizationSettings = null, currentTab, onTabChange, currentFolder, onFolderChange, onOpenDocumentModal, onOpenBulkImport }) => {
   // Reset folder when switching tabs
   React.useEffect(() => {
     onFolderChange(null);
@@ -50,7 +50,10 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
               </h1>
             </div>
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick={onOpenBulkImport}
+                  className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors"
+                >
                   <FolderPlusIcon className="w-6 h-6 text-[#767676]" />
                   Bulk import
                 </button>

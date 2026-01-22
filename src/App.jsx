@@ -4,10 +4,12 @@ import Header from './components/Header';
 import MainContent from './components/MainContent';
 import GmailImportModal from './components/GmailImportModal';
 import GetStartedPage from './components/GetStartedPage';
+import BulkImportPage from './components/BulkImportPage';
 
 function App() {
   const [isGmailImportModalOpen, setIsGmailImportModalOpen] = useState(false);
   const [showGetStartedPage, setShowGetStartedPage] = useState(false);
+  const [showBulkImportPage, setShowBulkImportPage] = useState(false);
   const [importedDocuments, setImportedDocuments] = useState([]);
   const [importedOrganizationSettings, setImportedOrganizationSettings] = useState(null);
   const [currentTab, setCurrentTab] = useState('All documents');
@@ -27,6 +29,14 @@ function App() {
 
   const handleCloseGetStarted = () => {
     setShowGetStartedPage(false);
+  };
+
+  const handleOpenBulkImport = () => {
+    setShowBulkImportPage(true);
+  };
+
+  const handleCloseBulkImport = () => {
+    setShowBulkImportPage(false);
   };
 
   const handleImportComplete = (documents, organizationSettings) => {
@@ -81,6 +91,7 @@ function App() {
             currentFolder={currentFolder}
             onFolderChange={setCurrentFolder}
             onOpenDocumentModal={handleOpenGetStarted}
+            onOpenBulkImport={handleOpenBulkImport}
           />
         </main>
       </div>
@@ -91,6 +102,11 @@ function App() {
         onClose={handleCloseGmailImport}
         onImportComplete={handleImportComplete}
       />
+
+      {/* Bulk Import Page */}
+      {showBulkImportPage && (
+        <BulkImportPage onClose={handleCloseBulkImport} />
+      )}
     </div>
   );
 }
