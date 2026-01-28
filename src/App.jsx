@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import MainContent from './components/MainContent';
+import TemplatesContent from './components/TemplatesContent';
 import GmailImportModal from './components/GmailImportModal';
 import GetStartedPage from './components/GetStartedPage';
 import BulkImportPage from './components/BulkImportPage';
@@ -14,6 +15,7 @@ function App() {
   const [importedOrganizationSettings, setImportedOrganizationSettings] = useState(null);
   const [currentTab, setCurrentTab] = useState('All documents');
   const [currentFolder, setCurrentFolder] = useState(null);
+  const [activePage, setActivePage] = useState('Documents');
 
   const handleOpenGmailImport = () => {
     setIsGmailImportModalOpen(true);
@@ -71,7 +73,7 @@ function App() {
     <div className="flex h-screen bg-white overflow-hidden">
       {/* Sidebar - Fixed position */}
       <div className="w-60 flex-shrink-0">
-        <Sidebar />
+        <Sidebar activePage={activePage} onPageChange={setActivePage} />
       </div>
       
       {/* Main content area */}
@@ -83,16 +85,20 @@ function App() {
         
         {/* Main content - Scrollable, full width */}
         <main className="flex-1 overflow-auto">
-          <MainContent 
-            importedDocuments={importedDocuments}
-            importedOrganizationSettings={importedOrganizationSettings}
-            currentTab={currentTab}
-            onTabChange={setCurrentTab}
-            currentFolder={currentFolder}
-            onFolderChange={setCurrentFolder}
-            onOpenDocumentModal={handleOpenGetStarted}
-            onOpenBulkImport={handleOpenBulkImport}
-          />
+          {activePage === 'Documents' ? (
+            <MainContent 
+              importedDocuments={importedDocuments}
+              importedOrganizationSettings={importedOrganizationSettings}
+              currentTab={currentTab}
+              onTabChange={setCurrentTab}
+              currentFolder={currentFolder}
+              onFolderChange={setCurrentFolder}
+              onOpenDocumentModal={handleOpenGetStarted}
+              onOpenBulkImport={handleOpenBulkImport}
+            />
+          ) : (
+            <TemplatesContent />
+          )}
         </main>
       </div>
 

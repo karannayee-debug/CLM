@@ -74,6 +74,10 @@
     @apply flex h-9 items-center w-full px-4 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors;
   }
   
+  .nav-item:disabled {
+    @apply hover:bg-transparent pointer-events-none;
+  }
+  
   .nav-item.active {
     @apply font-graphik-semibold bg-white shadow-subtle;
   }

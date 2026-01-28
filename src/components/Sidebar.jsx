@@ -13,14 +13,20 @@ import {
   ChevronDownIcon
 } from './Icons';
 
-const Sidebar = () => {
+const Sidebar = ({ activePage, onPageChange }) => {
   const mainNavItems = [
-    { icon: HomeIcon, label: 'Home', active: false },
-    { icon: DocumentIcon, label: 'Documents', active: true },
-    { icon: TemplateIcon, label: 'Templates', active: false },
-    { icon: ContactsIcon, label: 'Contacts', active: false },
+    { icon: HomeIcon, label: 'Home', active: false, disabled: true },
+    { icon: DocumentIcon, label: 'Documents', active: activePage === 'Documents', page: 'Documents' },
+    { icon: TemplateIcon, label: 'Templates', active: activePage === 'Templates', page: 'Templates' },
+    { icon: ContactsIcon, label: 'Contacts', active: false, disabled: true },
     { icon: MoreIcon, label: 'More', active: false },
   ];
+
+  const handleNavClick = (item) => {
+    if (!item.disabled && item.page && onPageChange) {
+      onPageChange(item.page);
+    }
+  };
 
   const bottomNavItems = [
     { icon: DiscoverIcon, label: 'Discover' },
@@ -56,14 +62,16 @@ const Sidebar = () => {
             return (
               <button
                 key={index}
-                className={`nav-item ${item.active ? 'active' : ''}`}
+                className={`nav-item ${item.active ? 'active' : ''} ${item.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
                 style={item.active ? {
                   backgroundColor: 'white',
                   boxShadow: '0px 0px 1px 0px rgba(47,47,47,0.04), 0px 1px 4px 0px rgba(47,47,47,0.12)'
                 } : {}}
+                disabled={item.disabled}
+                onClick={() => handleNavClick(item)}
               >
-                <IconComponent className={`w-5 h-5 mr-3 ${item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
-                <span className={item.active ? 'text-secondary-dark' : 'text-secondary-dark'}>
+                <IconComponent className={`w-5 h-5 mr-3 ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
+                <span className={item.disabled ? 'text-[#9CA3AF]' : 'text-secondary-dark'}>
                   {item.label}
                 </span>
               </button>

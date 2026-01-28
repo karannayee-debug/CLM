@@ -274,3 +274,15 @@ export const XIcon = ({ className = "w-5 h-5" }) => (
     />
   </svg>
 );
+
+export const ListIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
