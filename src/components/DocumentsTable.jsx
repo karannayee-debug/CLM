@@ -6,6 +6,7 @@ import { organizeByYear, organizeByCompany, organizeByStatus } from '../data/moc
 
 const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '' }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
+  const [selectedItems, setSelectedItems] = useState(new Set());
 
   const toggleFolder = (folderId) => {
     setExpandedFolders(prev => ({
@@ -13,6 +14,21 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       [folderId]: !prev[folderId]
     }));
   };
+
+  const toggleItemSelection = (itemId, e) => {
+    e.stopPropagation();
+    setSelectedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const isItemSelected = (itemId) => selectedItems.has(itemId);
 
   const handleFolderRowClick = (folder, e) => {
     e.stopPropagation();
@@ -438,13 +454,20 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   // Render a single document row
   const renderDocumentRow = (doc, indentLevel = 0) => {
     const indentPadding = indentLevel * 24; // 24px per level
+    const selected = isItemSelected(doc.id);
     
     return (
-      <div key={doc.id} className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
-        {/* Document Icon + Name Column */}
+      <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+        {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
         <div className="flex-1 min-w-0 flex items-center">
           <div className="w-12 flex justify-center" style={{ marginLeft: `${indentPadding}px` }}>
-            <DocumentPortraitIcon className="w-6 h-6 text-secondary-light" />
+            <input 
+              type="checkbox" 
+              checked={selected}
+              onChange={(e) => toggleItemSelection(doc.id, e)}
+              className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`} 
+            />
+            <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
           </div>
           <div className="flex-1 pr-3 min-w-0">
             <div className="flex items-center gap-2.5">
@@ -483,16 +506,25 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
 
   // Render imported folder row (clickable to navigate)
   const renderImportedFolder = (folder) => {
+    const selected = isItemSelected(folder.id);
+    
     return (
       <div 
         key={folder.id}
-        className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+        className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
         onClick={(e) => handleFolderRowClick(folder, e)}
       >
-        {/* Folder Icon + Name Column */}
+        {/* Folder Icon (becomes checkbox on hover or when selected) + Name Column */}
         <div className="flex-1 min-w-0 flex items-center">
           <div className="w-12 flex justify-center">
-            <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+            <input 
+              type="checkbox" 
+              checked={selected}
+              onChange={(e) => toggleItemSelection(folder.id, e)}
+              className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <svg className={`w-6 h-6 ${selected ? 'hidden' : 'block group-hover:hidden'}`} viewBox="0 0 24 24" fill="none">
               <path d="M2 20V4H10L12 6H22V20H2Z" fill="#767676"/>
             </svg>
           </div>
@@ -561,8 +593,11 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
     <div className="bg-white">
       {/* Table Header */}
       <div className="flex items-center h-10 border-b border-gray-100 text-13 font-graphik-regular text-[#767676]">
-        <div className="flex-1 min-w-0 px-0 flex items-center">
-          Name
+        <div className="flex-1 min-w-0 flex items-center">
+          <div className="w-12 flex justify-center">
+            <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" />
+          </div>
+          <span>Name</span>
         </div>
         <div className="w-40 flex items-center">
           Status
@@ -571,14 +606,27 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           Amount
         </div>
         <div className="w-40 flex items-center ml-6">
-          Created
+          Modified
         </div>
       </div>
 
       {/* Table Body */}
       <div>
-        {/* Show imported folders when on Imported tab and not in folder view */}
-        {currentTab === 'Imported' && !currentFolder && filteredImportedFolders.map(folder => renderImportedFolder(folder))}
+        {/* Show imported documents/folders when on Imported tab and not in folder view */}
+        {currentTab === 'Imported' && !currentFolder && (
+          <>
+            {/* If flat structure (no organization), show documents directly */}
+            {importedOrganizationSettings && 
+             !importedOrganizationSettings.byYear && 
+             !importedOrganizationSettings.byCompany && 
+             !importedOrganizationSettings.byStatus ? (
+              importedDocuments.filter(filterBySearch).map(doc => renderDocumentRow(doc, 0))
+            ) : (
+              /* Otherwise show folder structure */
+              filteredImportedFolders.map(folder => renderImportedFolder(folder))
+            )}
+          </>
+        )}
 
         {/* Show imported folder contents when inside a folder on Imported tab */}
         {currentTab === 'Imported' && currentFolder && (
@@ -589,141 +637,169 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         )}
 
         {/* Show regular folders only when not in folder view and not on Imported tab */}
-        {currentTab !== 'Imported' && !currentFolder && filteredFolders.map((folder) => (
-          <React.Fragment key={folder.id}>
-            {/* Folder Row */}
-            <div 
-              className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
-              onClick={(e) => handleFolderRowClick(folder, e)}
-            >
-              {/* Folder Icon + Name Column */}
+        {currentTab !== 'Imported' && !currentFolder && filteredFolders.map((folder) => {
+          const selected = isItemSelected(folder.id);
+          return (
+            <React.Fragment key={folder.id}>
+              {/* Folder Row */}
+              <div 
+                className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+                onClick={(e) => handleFolderRowClick(folder, e)}
+              >
+                {/* Folder Icon (becomes checkbox on hover or when selected) + Name Column */}
+                <div className="flex-1 min-w-0 flex items-center">
+                  <div className="w-12 flex justify-center">
+                    <input 
+                      type="checkbox" 
+                      checked={selected}
+                      onChange={(e) => toggleItemSelection(folder.id, e)}
+                      className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <svg className={`w-6 h-6 ${selected ? 'hidden' : 'block group-hover:hidden'}`} viewBox="0 0 24 24" fill="none">
+                      <path d="M2 20V4H10L12 6H22V20H2Z" fill="#767676"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1 pr-3 min-w-0">
+                    <div className="flex items-center gap-2.5">
+                      <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
+                        {folder.name}
+                      </h3>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Column - Empty for folders */}
+                <div className="w-40 flex items-center">
+                  <span className="text-13 font-graphik-regular text-secondary-light">
+                    {folder.documents.length} items
+                  </span>
+                </div>
+
+                {/* Amount Column - Empty for folders */}
+                <div className="w-32 flex items-center justify-end">
+                  <span className="text-13 font-graphik-regular text-secondary-dark">
+                    {'\u00A0'}
+                  </span>
+                </div>
+
+                {/* Created Column */}
+                <div className="w-40 flex items-center gap-2 ml-6">
+                  <Avatar src={folder.avatar} alt="User avatar" size="sm" />
+                  <span className="text-13 font-graphik-regular text-secondary-dark">
+                    {folder.created}
+                  </span>
+                </div>
+              </div>
+
+            </React.Fragment>
+          );
+        })}
+
+        {/* Show folder documents when in folder view */}
+        {currentFolder && currentFolder.documents.filter(filterBySearch).map((doc) => {
+          const selected = isItemSelected(doc.id);
+          return (
+            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+              {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
               <div className="flex-1 min-w-0 flex items-center">
                 <div className="w-12 flex justify-center">
-                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                    <path d="M2 20V4H10L12 6H22V20H2Z" fill="#767676"/>
-                  </svg>
+                  <input 
+                    type="checkbox" 
+                    checked={selected}
+                    onChange={(e) => toggleItemSelection(doc.id, e)}
+                    className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
+                  />
+                  <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
                 </div>
                 <div className="flex-1 pr-3 min-w-0">
                   <div className="flex items-center gap-2.5">
                     <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
-                      {folder.name}
+                      {doc.name}
                     </h3>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-13 font-graphik-regular text-secondary-dark truncate">
+                      {doc.participants}
+                    </span>
+                    <ChevronDownIcon className="w-4 h-4 text-secondary-light flex-shrink-0" />
                   </div>
                 </div>
               </div>
 
-              {/* Status Column - Empty for folders */}
               <div className="w-40 flex items-center">
-                <span className="text-13 font-graphik-regular text-secondary-light">
-                  {folder.documents.length} items
+                <StatusLabel type={doc.status} />
+              </div>
+
+              <div className="w-32 flex items-center justify-end">
+                <span className="text-13 font-graphik-regular text-secondary-dark">
+                  {doc.amount || '\u00A0'}
                 </span>
               </div>
 
-              {/* Amount Column - Empty for folders */}
+              <div className="w-40 flex items-center gap-2 ml-6">
+                <Avatar src={doc.avatar} alt="User avatar" size="sm" />
+                <span className="text-13 font-graphik-regular text-secondary-dark">
+                  {doc.created}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Individual Documents (only show when not in folder view and not on Imported tab) */}
+        {currentTab !== 'Imported' && !currentFolder && filteredDocuments.map((doc) => {
+          const selected = isItemSelected(doc.id);
+          return (
+            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+              {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
+              <div className="flex-1 min-w-0 flex items-center">
+                <div className="w-12 flex justify-center">
+                  <input 
+                    type="checkbox" 
+                    checked={selected}
+                    onChange={(e) => toggleItemSelection(doc.id, e)}
+                    className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
+                  />
+                  <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
+                </div>
+                <div className="flex-1 pr-3 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
+                      {doc.name}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-13 font-graphik-regular text-secondary-dark truncate">
+                      {doc.participants}
+                    </span>
+                    <ChevronDownIcon className="w-4 h-4 text-secondary-light flex-shrink-0" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Column */}
+              <div className="w-40 flex items-center">
+                <StatusLabel type={doc.status} />
+              </div>
+
+              {/* Amount Column */}
               <div className="w-32 flex items-center justify-end">
                 <span className="text-13 font-graphik-regular text-secondary-dark">
-                  {'\u00A0'}
+                  {doc.amount || '\u00A0'}
                 </span>
               </div>
 
               {/* Created Column */}
               <div className="w-40 flex items-center gap-2 ml-6">
-                <Avatar src={folder.avatar} alt="User avatar" size="sm" />
+                <Avatar src={doc.avatar} alt="User avatar" size="sm" />
                 <span className="text-13 font-graphik-regular text-secondary-dark">
-                  {folder.created}
+                  {doc.created}
                 </span>
               </div>
             </div>
-
-          </React.Fragment>
-        ))}
-
-        {/* Show folder documents when in folder view */}
-        {currentFolder && currentFolder.documents.filter(filterBySearch).map((doc) => (
-          <div key={doc.id} className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
-            {/* Document Icon + Name Column */}
-            <div className="flex-1 min-w-0 flex items-center">
-              <div className="w-12 flex justify-center">
-                <DocumentPortraitIcon className="w-6 h-6 text-secondary-light" />
-              </div>
-              <div className="flex-1 pr-3 min-w-0">
-                <div className="flex items-center gap-2.5">
-                  <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
-                    {doc.name}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-13 font-graphik-regular text-secondary-dark truncate">
-                    {doc.participants}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4 text-secondary-light flex-shrink-0" />
-                </div>
-              </div>
-            </div>
-
-            <div className="w-40 flex items-center">
-              <StatusLabel type={doc.status} />
-            </div>
-
-            <div className="w-32 flex items-center justify-end">
-              <span className="text-13 font-graphik-regular text-secondary-dark">
-                {doc.amount || '\u00A0'}
-              </span>
-            </div>
-
-            <div className="w-40 flex items-center gap-2 ml-6">
-              <Avatar src={doc.avatar} alt="User avatar" size="sm" />
-              <span className="text-13 font-graphik-regular text-secondary-dark">
-                {doc.created}
-              </span>
-            </div>
-          </div>
-        ))}
-
-        {/* Individual Documents (only show when not in folder view and not on Imported tab) */}
-        {currentTab !== 'Imported' && !currentFolder && filteredDocuments.map((doc) => (
-          <div key={doc.id} className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
-            {/* Document Icon + Name Column */}
-            <div className="flex-1 min-w-0 flex items-center">
-              <div className="w-12 flex justify-center">
-                <DocumentPortraitIcon className="w-6 h-6 text-secondary-light" />
-              </div>
-              <div className="flex-1 pr-3 min-w-0">
-                <div className="flex items-center gap-2.5">
-                  <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
-                    {doc.name}
-                  </h3>
-                </div>
-                <div className="flex items-center gap-1 mt-0.5">
-                  <span className="text-13 font-graphik-regular text-secondary-dark truncate">
-                    {doc.participants}
-                  </span>
-                  <ChevronDownIcon className="w-4 h-4 text-secondary-light flex-shrink-0" />
-                </div>
-              </div>
-            </div>
-
-            {/* Status Column */}
-            <div className="w-40 flex items-center">
-              <StatusLabel type={doc.status} />
-            </div>
-
-            {/* Amount Column */}
-            <div className="w-32 flex items-center justify-end">
-              <span className="text-13 font-graphik-regular text-secondary-dark">
-                {doc.amount || '\u00A0'}
-              </span>
-            </div>
-
-            {/* Created Column */}
-            <div className="w-40 flex items-center gap-2 ml-6">
-              <Avatar src={doc.avatar} alt="User avatar" size="sm" />
-              <span className="text-13 font-graphik-regular text-secondary-dark">
-                {doc.created}
-              </span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

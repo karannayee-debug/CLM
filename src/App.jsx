@@ -42,6 +42,30 @@ function App() {
     setShowBulkImportPage(false);
   };
 
+  const handleBulkImportComplete = (fileNames) => {
+    // Convert file names to document objects
+    const newDocuments = fileNames.map((name, index) => ({
+      id: `bulk-${Date.now()}-${index}`,
+      name: name,
+      company: 'Bulk Import',
+      status: 'Completed',
+      date: new Date().toISOString(),
+      isImported: true,
+      importDate: new Date().toISOString()
+    }));
+    
+    // Add to imported documents
+    setImportedDocuments(prev => [...prev, ...newDocuments]);
+    
+    // Set organization settings for flat structure
+    setImportedOrganizationSettings({ byYear: false, byCompany: false, byStatus: false });
+    
+    // Close bulk import and switch to Imported tab
+    setShowBulkImportPage(false);
+    setCurrentFolder(null);
+    setCurrentTab('Imported');
+  };
+
   const handleImportComplete = (documents, organizationSettings) => {
     // Add imported documents to state with organization metadata
     const documentsWithImportInfo = documents.map(doc => ({
@@ -117,7 +141,10 @@ function App() {
 
       {/* Bulk Import Page */}
       {showBulkImportPage && (
-        <BulkImportPage onClose={handleCloseBulkImport} />
+        <BulkImportPage 
+          onClose={handleCloseBulkImport} 
+          onImportComplete={handleBulkImportComplete}
+        />
       )}
     </div>
   );
