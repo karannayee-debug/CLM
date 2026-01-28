@@ -589,15 +589,88 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
     };
   };
 
+  // Get all visible item IDs for select all functionality
+  const getVisibleItemIds = () => {
+    const ids = [];
+    
+    if (currentTab === 'Imported' && !currentFolder) {
+      // Imported tab without folder view
+      if (importedOrganizationSettings && 
+          !importedOrganizationSettings.byYear && 
+          !importedOrganizationSettings.byCompany && 
+          !importedOrganizationSettings.byStatus) {
+        // Flat structure - add all imported documents
+        importedDocuments.filter(filterBySearch).forEach(doc => ids.push(doc.id));
+      } else {
+        // Folder structure - add folder IDs
+        filteredImportedFolders.forEach(folder => ids.push(folder.id));
+      }
+    } else if (currentTab === 'Imported' && currentFolder) {
+      // Inside imported folder
+      const contents = getCurrentImportedFolderContents();
+      contents.folders.forEach(folder => ids.push(folder.id));
+      contents.documents.filter(filterBySearch).forEach(doc => ids.push(doc.id));
+    } else if (currentFolder && currentFolder.documents) {
+      // Inside regular folder
+      currentFolder.documents.filter(filterBySearch).forEach(doc => ids.push(doc.id));
+    } else {
+      // All documents view
+      filteredFolders.forEach(folder => ids.push(folder.id));
+      filteredDocuments.forEach(doc => ids.push(doc.id));
+    }
+    
+    return ids;
+  };
+
+  const handleSelectAll = (e) => {
+    const visibleIds = getVisibleItemIds();
+    if (e.target.checked) {
+      // Select all visible items
+      setSelectedItems(new Set(visibleIds));
+    } else {
+      // Deselect all
+      setSelectedItems(new Set());
+    }
+  };
+
+  // Check if all visible items are selected
+  const areAllSelected = () => {
+    const visibleIds = getVisibleItemIds();
+    if (visibleIds.length === 0) return false;
+    return visibleIds.every(id => selectedItems.has(id));
+  };
+
+  // Check if some (but not all) visible items are selected
+  const areSomeSelected = () => {
+    const visibleIds = getVisibleItemIds();
+    const selectedCount = visibleIds.filter(id => selectedItems.has(id)).length;
+    return selectedCount > 0 && selectedCount < visibleIds.length;
+  };
+
+  // Get count of selected items
+  const selectedCount = selectedItems.size;
+
   return (
     <div className="bg-white">
       {/* Table Header */}
       <div className="flex items-center h-10 border-b border-gray-100 text-13 font-graphik-regular text-[#767676]">
         <div className="flex-1 min-w-0 flex items-center">
           <div className="w-12 flex justify-center">
-            <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" />
+            <input 
+              type="checkbox" 
+              checked={areAllSelected()}
+              ref={(el) => {
+                if (el) el.indeterminate = areSomeSelected();
+              }}
+              onChange={handleSelectAll}
+              className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary" 
+            />
           </div>
-          <span>Name</span>
+          {selectedCount > 0 ? (
+            <span className="font-graphik-semibold text-secondary-dark">{selectedCount} selected</span>
+          ) : (
+            <span>Name</span>
+          )}
         </div>
         <div className="w-40 flex items-center">
           Status
