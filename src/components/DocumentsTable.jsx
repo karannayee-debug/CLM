@@ -4,7 +4,7 @@ import StatusLabel from './StatusLabel';
 import Avatar from './Avatar';
 import { organizeByYear, organizeByCompany, organizeByStatus } from '../data/mockGmailDocuments';
 
-const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents' }) => {
+const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '' }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
 
   const toggleFolder = (folderId) => {
@@ -386,6 +386,55 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   // Get imported folder structure
   const importedFolders = currentTab === 'Imported' ? buildImportedFolderStructure() : [];
 
+  // Filter function for search
+  const filterBySearch = (doc) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return doc.name.toLowerCase().includes(query);
+  };
+
+  // Filter documents and folders based on search query
+  const filteredDocuments = documents.filter(filterBySearch);
+  
+  const filteredFolders = populatedFolders.map(folder => ({
+    ...folder,
+    documents: folder.documents.filter(filterBySearch)
+  })).filter(folder => {
+    // Show folder if its name matches OR if it has matching documents
+    const folderNameMatches = !searchQuery.trim() || folder.name.toLowerCase().includes(searchQuery.toLowerCase().trim());
+    const hasMatchingDocs = folder.documents.length > 0;
+    return folderNameMatches || hasMatchingDocs;
+  });
+
+  // Filter imported folders based on search
+  const filterImportedFolder = (folder) => {
+    if (!searchQuery.trim()) return folder;
+    const query = searchQuery.toLowerCase().trim();
+    const folderNameMatches = folder.name.toLowerCase().includes(query);
+    const filteredDocs = (folder.documents || []).filter(doc => doc.name.toLowerCase().includes(query));
+    const filteredChildren = (folder.children || []).map(filterImportedFolder).filter(child => 
+      child.name.toLowerCase().includes(query) || 
+      (child.documents && child.documents.length > 0) ||
+      (child.children && child.children.length > 0)
+    );
+    
+    return {
+      ...folder,
+      documents: filteredDocs,
+      children: filteredChildren
+    };
+  };
+
+  const filteredImportedFolders = importedFolders
+    .map(filterImportedFolder)
+    .filter(folder => {
+      const query = searchQuery.toLowerCase().trim();
+      if (!query) return true;
+      return folder.name.toLowerCase().includes(query) || 
+             (folder.documents && folder.documents.length > 0) ||
+             (folder.children && folder.children.length > 0);
+    });
+
   // Render a single document row
   const renderDocumentRow = (doc, indentLevel = 0) => {
     const indentPadding = indentLevel * 24; // 24px per level
@@ -529,18 +578,18 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       {/* Table Body */}
       <div>
         {/* Show imported folders when on Imported tab and not in folder view */}
-        {currentTab === 'Imported' && !currentFolder && importedFolders.map(folder => renderImportedFolder(folder))}
+        {currentTab === 'Imported' && !currentFolder && filteredImportedFolders.map(folder => renderImportedFolder(folder))}
 
         {/* Show imported folder contents when inside a folder on Imported tab */}
         {currentTab === 'Imported' && currentFolder && (
           <>
             {getCurrentImportedFolderContents().folders.map(folder => renderImportedFolder(folder))}
-            {getCurrentImportedFolderContents().documents.map(doc => renderDocumentRow(doc, 0))}
+            {getCurrentImportedFolderContents().documents.filter(filterBySearch).map(doc => renderDocumentRow(doc, 0))}
           </>
         )}
 
         {/* Show regular folders only when not in folder view and not on Imported tab */}
-        {currentTab !== 'Imported' && !currentFolder && populatedFolders.map((folder) => (
+        {currentTab !== 'Imported' && !currentFolder && filteredFolders.map((folder) => (
           <React.Fragment key={folder.id}>
             {/* Folder Row */}
             <div 
@@ -590,7 +639,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         ))}
 
         {/* Show folder documents when in folder view */}
-        {currentFolder && currentFolder.documents.map((doc) => (
+        {currentFolder && currentFolder.documents.filter(filterBySearch).map((doc) => (
           <div key={doc.id} className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
             {/* Document Icon + Name Column */}
             <div className="flex-1 min-w-0 flex items-center">
@@ -632,7 +681,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         ))}
 
         {/* Individual Documents (only show when not in folder view and not on Imported tab) */}
-        {currentTab !== 'Imported' && !currentFolder && documents.map((doc) => (
+        {currentTab !== 'Imported' && !currentFolder && filteredDocuments.map((doc) => (
           <div key={doc.id} className="flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
             {/* Document Icon + Name Column */}
             <div className="flex-1 min-w-0 flex items-center">

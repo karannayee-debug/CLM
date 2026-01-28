@@ -2,7 +2,7 @@ import React from 'react';
 import { SearchIcon, NotificationIcon, HelpIcon } from './Icons';
 import Avatar from './Avatar';
 
-const Header = () => {
+const Header = ({ searchQuery, onSearchChange, activePage }) => {
   return (
     <header className="bg-white h-20 border-b border-gray-100 flex items-center px-15">
       <div className="flex-1 flex items-center gap-4">
@@ -12,7 +12,9 @@ const Header = () => {
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-light w-5 h-5" />
             <input
               type="text"
-              placeholder="Search documents"
+              placeholder={`Search ${activePage === 'Templates' ? 'templates' : 'documents'}`}
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-md text-14 font-graphik-regular placeholder-secondary-light focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
             />
           </div>

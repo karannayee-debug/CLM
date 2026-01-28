@@ -16,6 +16,7 @@ function App() {
   const [currentTab, setCurrentTab] = useState('All documents');
   const [currentFolder, setCurrentFolder] = useState(null);
   const [activePage, setActivePage] = useState('Documents');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenGmailImport = () => {
     setIsGmailImportModalOpen(true);
@@ -80,7 +81,11 @@ function App() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header - Full width of remaining space */}
         <div className="w-full z-20">
-          <Header />
+          <Header 
+            searchQuery={searchQuery} 
+            onSearchChange={setSearchQuery}
+            activePage={activePage}
+          />
         </div>
         
         {/* Main content - Scrollable, full width */}
@@ -95,9 +100,10 @@ function App() {
               onFolderChange={setCurrentFolder}
               onOpenDocumentModal={handleOpenGetStarted}
               onOpenBulkImport={handleOpenBulkImport}
+              searchQuery={searchQuery}
             />
           ) : (
-            <TemplatesContent />
+            <TemplatesContent searchQuery={searchQuery} />
           )}
         </main>
       </div>

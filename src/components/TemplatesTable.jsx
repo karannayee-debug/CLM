@@ -2,8 +2,8 @@ import React from 'react';
 import { DocumentPortraitIcon, ChevronDownIcon } from './Icons';
 import Avatar from './Avatar';
 
-const TemplatesTable = () => {
-  const templates = [
+const TemplatesTable = ({ searchQuery = '' }) => {
+  const allTemplates = [
     {
       id: 1,
       name: 'Building Quote',
@@ -66,6 +66,13 @@ const TemplatesTable = () => {
       created: 'Jan 27, 2026'
     }
   ];
+
+  // Filter templates based on search query
+  const templates = allTemplates.filter(template => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return template.name.toLowerCase().includes(query);
+  });
 
   return (
     <div className="bg-white">

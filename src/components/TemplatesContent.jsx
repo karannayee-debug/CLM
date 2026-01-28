@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { PlusIcon, FilterIcon, ChevronDownIcon, FolderPlusIcon, ListIcon } from './Icons';
 import TemplatesTable from './TemplatesTable';
 
-const TemplatesContent = () => {
+const TemplatesContent = ({ searchQuery = '' }) => {
   const [currentTab, setCurrentTab] = useState('Document templates');
   const [showBanner, setShowBanner] = useState(true);
 
@@ -96,7 +96,7 @@ const TemplatesContent = () => {
         )}
 
         {/* Templates Table */}
-        <TemplatesTable />
+        <TemplatesTable searchQuery={searchQuery} />
       </div>
     </div>
   );

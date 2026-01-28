@@ -3,7 +3,7 @@ import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon, Che
 import DocumentsTable from './DocumentsTable';
 import Badge from './Badge';
 
-const MainContent = ({ importedDocuments = [], importedOrganizationSettings = null, currentTab, onTabChange, currentFolder, onFolderChange, onOpenDocumentModal, onOpenBulkImport }) => {
+const MainContent = ({ importedDocuments = [], importedOrganizationSettings = null, currentTab, onTabChange, currentFolder, onFolderChange, onOpenDocumentModal, onOpenBulkImport, searchQuery = '' }) => {
   // Reset folder when switching tabs
   React.useEffect(() => {
     onFolderChange(null);
@@ -195,6 +195,7 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
           importedDocuments={importedDocuments}
           importedOrganizationSettings={importedOrganizationSettings}
           currentTab={currentTab}
+          searchQuery={searchQuery}
         />
       </div>
     </div>
