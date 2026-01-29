@@ -42,9 +42,12 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
               </h1>
             </div>
               <div className="flex items-center gap-3">
-                <button className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors">
+                <button 
+                  onClick={onOpenBulkImport}
+                  className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors"
+                >
                   <FolderPlusIcon className="w-6 h-6 text-[#767676]" />
-                  New folder
+                  Bulk import
                 </button>
                 <div className="flex rounded shadow-subtle overflow-hidden">
                   <button 
