@@ -1,34 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { DocumentPortraitIcon, ChevronDownIcon, ChevronRightIcon } from './Icons';
 import StatusLabel from './StatusLabel';
 import Avatar from './Avatar';
 import { organizeByYear, organizeByCompany, organizeByStatus } from '../data/mockGmailDocuments';
-import { DateRangeFilter, StatusFilter, AmountFilter, UserFilter } from './filters';
 
 const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '' }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [selectedItems, setSelectedItems] = useState(new Set());
-  
-  // Filter states
-  const [activeFilter, setActiveFilter] = useState(null);
-  const [dateFilter, setDateFilter] = useState({ startDate: null, endDate: null });
-  const [statusFilter, setStatusFilter] = useState([]);
-  const [amountFilter, setAmountFilter] = useState(null);
-  const [ownerFilter, setOwnerFilter] = useState([]);
-  const [recipientsFilter, setRecipientsFilter] = useState([]);
-  
-  const filterRef = useRef(null);
-
-  // Close filter when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
-        setActiveFilter(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const toggleFolder = (folderId) => {
     setExpandedFolders(prev => ({
@@ -424,58 +402,12 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   // Get imported folder structure
   const importedFolders = currentTab === 'Imported' ? buildImportedFolderStructure() : [];
 
-  // Comprehensive filter function
-  const filterDocument = (doc) => {
-    // Search filter
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase().trim();
-      if (!doc.name.toLowerCase().includes(query)) return false;
-    }
-
-    // Date filter
-    if (dateFilter.startDate || dateFilter.endDate) {
-      const docDate = doc.created ? new Date(doc.created) : (doc.date ? new Date(doc.date) : null);
-      if (docDate) {
-        if (dateFilter.startDate && docDate < dateFilter.startDate) return false;
-        if (dateFilter.endDate && docDate > dateFilter.endDate) return false;
-      }
-    }
-
-    // Status filter
-    if (statusFilter.length > 0) {
-      const docStatus = doc.status?.toLowerCase().replace(/\s+/g, '-') || '';
-      if (!statusFilter.includes(docStatus)) return false;
-    }
-
-    // Amount filter
-    if (amountFilter && amountFilter.from !== null) {
-      const docAmount = doc.amount ? parseFloat(doc.amount.replace(/[$,]/g, '')) : 0;
-      if (amountFilter.type === 'between') {
-        if (docAmount < amountFilter.from || (amountFilter.to !== null && docAmount > amountFilter.to)) return false;
-      } else if (amountFilter.type === 'greater') {
-        if (docAmount <= amountFilter.from) return false;
-      } else if (amountFilter.type === 'less') {
-        if (docAmount >= amountFilter.from) return false;
-      }
-    }
-
-    // Owner filter - check against participants/avatar name
-    // For demo purposes, we match owner based on the avatar filename or participants
-    if (ownerFilter.length > 0) {
-      // This is a simplified check - in real app, would check against actual owner data
-      // For now, we'll let all documents pass if owner filter is set
-    }
-
-    // Recipients filter - similar to owner
-    if (recipientsFilter.length > 0) {
-      // Simplified check for demo
-    }
-
-    return true;
+  // Filter function for search
+  const filterBySearch = (doc) => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return doc.name.toLowerCase().includes(query);
   };
-
-  // Alias for backward compatibility
-  const filterBySearch = filterDocument;
 
   // Filter documents and folders based on search query
   const filteredDocuments = documents.filter(filterBySearch);
@@ -552,30 +484,18 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           </div>
         </div>
 
-        <div className="w-28 flex items-center">
+        <div className="w-40 flex items-center">
           <StatusLabel type={doc.status} />
         </div>
 
-        <div className="w-24 flex items-center justify-end">
+        <div className="w-32 flex items-center justify-end">
           <span className="text-13 font-graphik-regular text-secondary-dark">
             {doc.amount || '\u00A0'}
           </span>
         </div>
 
-        <div className="w-24 flex items-center ml-4">
-          <Avatar src={doc.avatar || '/CLM/images/user-profile.png'} alt="Owner" size="sm" />
-        </div>
-
-        <div className="w-28 flex items-center ml-2">
-          <div className="flex -space-x-2">
-            <Avatar src={doc.avatar || '/CLM/images/1.png'} alt="Recipient" size="sm" />
-            {doc.participants && doc.participants.includes(',') && (
-              <Avatar src="/CLM/images/2.png" alt="Recipient" size="sm" />
-            )}
-          </div>
-        </div>
-
-        <div className="w-32 flex items-center ml-4">
+        <div className="w-40 flex items-center gap-2 ml-6">
+          <Avatar src={doc.avatar || '/CLM/images/user-profile.png'} alt="User avatar" size="sm" />
           <span className="text-13 font-graphik-regular text-secondary-dark">
             {doc.created || new Date(doc.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </span>
@@ -618,33 +538,22 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         </div>
 
         {/* Status Column - Show item count */}
-        <div className="w-28 flex items-center">
+        <div className="w-40 flex items-center">
           <span className="text-13 font-graphik-regular text-secondary-light">
             {folder.itemCount} items
           </span>
         </div>
 
         {/* Amount Column - Empty for folders */}
-        <div className="w-24 flex items-center justify-end">
+        <div className="w-32 flex items-center justify-end">
           <span className="text-13 font-graphik-regular text-secondary-dark">
             {'\u00A0'}
           </span>
         </div>
 
-        {/* Owner Column */}
-        <div className="w-24 flex items-center ml-4">
-          <Avatar src="/CLM/images/user-profile.png" alt="Owner" size="sm" />
-        </div>
-
-        {/* Recipients Column - Empty for folders */}
-        <div className="w-28 flex items-center ml-2">
-          <span className="text-13 font-graphik-regular text-secondary-dark">
-            {'\u00A0'}
-          </span>
-        </div>
-
-        {/* Modified Column */}
-        <div className="w-32 flex items-center ml-4">
+        {/* Created Column */}
+        <div className="w-40 flex items-center gap-2 ml-6">
+          <Avatar src="/CLM/images/user-profile.png" alt="User avatar" size="sm" />
           <span className="text-13 font-graphik-regular text-secondary-dark">
             {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
           </span>
@@ -741,14 +650,10 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   // Get count of selected items
   const selectedCount = selectedItems.size;
 
-  // Check if any filter is active
-  const hasActiveFilters = dateFilter.startDate || dateFilter.endDate || statusFilter.length > 0 || 
-    amountFilter || ownerFilter.length > 0 || recipientsFilter.length > 0;
-
   return (
     <div className="bg-white">
       {/* Table Header */}
-      <div className="flex items-center h-10 border-b border-gray-100 text-13 font-graphik-regular text-[#767676]" ref={filterRef}>
+      <div className="flex items-center h-10 border-b border-gray-100 text-13 font-graphik-regular text-[#767676]">
         <div className="flex-1 min-w-0 flex items-center">
           <div className="w-12 flex justify-center">
             <input 
@@ -767,96 +672,14 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
             <span>Name</span>
           )}
         </div>
-        
-        {/* Status Filter */}
-        <div className="w-28 flex items-center relative">
-          <button 
-            onClick={() => setActiveFilter(activeFilter === 'status' ? null : 'status')}
-            className={`flex items-center gap-1 hover:text-secondary-dark transition-colors ${statusFilter.length > 0 ? 'text-brand-primary font-graphik-semibold' : ''}`}
-          >
-            Status
-            {statusFilter.length > 0 && <span className="text-11">({statusFilter.length})</span>}
-            <ChevronDownIcon className="w-3 h-3" />
-          </button>
-          <StatusFilter 
-            isOpen={activeFilter === 'status'}
-            onClose={() => setActiveFilter(null)}
-            onApply={setStatusFilter}
-            selectedStatuses={statusFilter}
-          />
+        <div className="w-40 flex items-center">
+          Status
         </div>
-        
-        {/* Amount Filter */}
-        <div className="w-24 flex items-center justify-end relative">
-          <button 
-            onClick={() => setActiveFilter(activeFilter === 'amount' ? null : 'amount')}
-            className={`flex items-center gap-1 hover:text-secondary-dark transition-colors ${amountFilter ? 'text-brand-primary font-graphik-semibold' : ''}`}
-          >
-            Amount
-            <ChevronDownIcon className="w-3 h-3" />
-          </button>
-          <AmountFilter 
-            isOpen={activeFilter === 'amount'}
-            onClose={() => setActiveFilter(null)}
-            onApply={setAmountFilter}
-            initialFilter={amountFilter}
-          />
+        <div className="w-32 flex items-center justify-end">
+          Amount
         </div>
-        
-        {/* Owner Filter */}
-        <div className="w-24 flex items-center relative ml-4">
-          <button 
-            onClick={() => setActiveFilter(activeFilter === 'owner' ? null : 'owner')}
-            className={`flex items-center gap-1 hover:text-secondary-dark transition-colors ${ownerFilter.length > 0 ? 'text-brand-primary font-graphik-semibold' : ''}`}
-          >
-            Owner
-            {ownerFilter.length > 0 && <span className="text-11">({ownerFilter.length})</span>}
-            <ChevronDownIcon className="w-3 h-3" />
-          </button>
-          <UserFilter 
-            isOpen={activeFilter === 'owner'}
-            onClose={() => setActiveFilter(null)}
-            onApply={setOwnerFilter}
-            selectedUsers={ownerFilter}
-            title="Owner"
-          />
-        </div>
-        
-        {/* Recipients Filter */}
-        <div className="w-28 flex items-center relative ml-2">
-          <button 
-            onClick={() => setActiveFilter(activeFilter === 'recipients' ? null : 'recipients')}
-            className={`flex items-center gap-1 hover:text-secondary-dark transition-colors ${recipientsFilter.length > 0 ? 'text-brand-primary font-graphik-semibold' : ''}`}
-          >
-            Recipients
-            {recipientsFilter.length > 0 && <span className="text-11">({recipientsFilter.length})</span>}
-            <ChevronDownIcon className="w-3 h-3" />
-          </button>
-          <UserFilter 
-            isOpen={activeFilter === 'recipients'}
-            onClose={() => setActiveFilter(null)}
-            onApply={setRecipientsFilter}
-            selectedUsers={recipientsFilter}
-            title="Recipients"
-          />
-        </div>
-        
-        {/* Modified/Date Filter */}
-        <div className="w-32 flex items-center ml-4 relative">
-          <button 
-            onClick={() => setActiveFilter(activeFilter === 'date' ? null : 'date')}
-            className={`flex items-center gap-1 hover:text-secondary-dark transition-colors ${dateFilter.startDate || dateFilter.endDate ? 'text-brand-primary font-graphik-semibold' : ''}`}
-          >
-            Modified
-            <ChevronDownIcon className="w-3 h-3" />
-          </button>
-          <DateRangeFilter 
-            isOpen={activeFilter === 'date'}
-            onClose={() => setActiveFilter(null)}
-            onApply={setDateFilter}
-            initialStartDate={dateFilter.startDate}
-            initialEndDate={dateFilter.endDate}
-          />
+        <div className="w-40 flex items-center ml-6">
+          Modified
         </div>
       </div>
 
@@ -920,33 +743,22 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
                 </div>
 
                 {/* Status Column - Empty for folders */}
-                <div className="w-28 flex items-center">
+                <div className="w-40 flex items-center">
                   <span className="text-13 font-graphik-regular text-secondary-light">
                     {folder.documents.length} items
                   </span>
                 </div>
 
                 {/* Amount Column - Empty for folders */}
-                <div className="w-24 flex items-center justify-end">
+                <div className="w-32 flex items-center justify-end">
                   <span className="text-13 font-graphik-regular text-secondary-dark">
                     {'\u00A0'}
                   </span>
                 </div>
 
-                {/* Owner Column */}
-                <div className="w-24 flex items-center ml-4">
-                  <Avatar src={folder.avatar} alt="Owner" size="sm" />
-                </div>
-
-                {/* Recipients Column - Empty for folders */}
-                <div className="w-28 flex items-center ml-2">
-                  <span className="text-13 font-graphik-regular text-secondary-dark">
-                    {'\u00A0'}
-                  </span>
-                </div>
-
-                {/* Modified Column */}
-                <div className="w-32 flex items-center ml-4">
+                {/* Created Column */}
+                <div className="w-40 flex items-center gap-2 ml-6">
+                  <Avatar src={folder.avatar} alt="User avatar" size="sm" />
                   <span className="text-13 font-graphik-regular text-secondary-dark">
                     {folder.created}
                   </span>
@@ -988,30 +800,18 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
                 </div>
               </div>
 
-              <div className="w-28 flex items-center">
+              <div className="w-40 flex items-center">
                 <StatusLabel type={doc.status} />
               </div>
 
-              <div className="w-24 flex items-center justify-end">
+              <div className="w-32 flex items-center justify-end">
                 <span className="text-13 font-graphik-regular text-secondary-dark">
                   {doc.amount || '\u00A0'}
                 </span>
               </div>
 
-              <div className="w-24 flex items-center ml-4">
-                <Avatar src={doc.avatar} alt="Owner" size="sm" />
-              </div>
-
-              <div className="w-28 flex items-center ml-2">
-                <div className="flex -space-x-2">
-                  <Avatar src={doc.avatar || '/CLM/images/1.png'} alt="Recipient" size="sm" />
-                  {doc.participants && doc.participants.includes(',') && (
-                    <Avatar src="/CLM/images/2.png" alt="Recipient" size="sm" />
-                  )}
-                </div>
-              </div>
-
-              <div className="w-32 flex items-center ml-4">
+              <div className="w-40 flex items-center gap-2 ml-6">
+                <Avatar src={doc.avatar} alt="User avatar" size="sm" />
                 <span className="text-13 font-graphik-regular text-secondary-dark">
                   {doc.created}
                 </span>
@@ -1052,34 +852,20 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
               </div>
 
               {/* Status Column */}
-              <div className="w-28 flex items-center">
+              <div className="w-40 flex items-center">
                 <StatusLabel type={doc.status} />
               </div>
 
               {/* Amount Column */}
-              <div className="w-24 flex items-center justify-end">
+              <div className="w-32 flex items-center justify-end">
                 <span className="text-13 font-graphik-regular text-secondary-dark">
                   {doc.amount || '\u00A0'}
                 </span>
               </div>
 
-              {/* Owner Column */}
-              <div className="w-24 flex items-center ml-4">
-                <Avatar src={doc.avatar} alt="Owner" size="sm" />
-              </div>
-
-              {/* Recipients Column */}
-              <div className="w-28 flex items-center ml-2">
-                <div className="flex -space-x-2">
-                  <Avatar src={doc.avatar || '/CLM/images/1.png'} alt="Recipient" size="sm" />
-                  {doc.participants && doc.participants.includes(',') && (
-                    <Avatar src="/CLM/images/2.png" alt="Recipient" size="sm" />
-                  )}
-                </div>
-              </div>
-
-              {/* Modified Column */}
-              <div className="w-32 flex items-center ml-4">
+              {/* Created Column */}
+              <div className="w-40 flex items-center gap-2 ml-6">
+                <Avatar src={doc.avatar} alt="User avatar" size="sm" />
                 <span className="text-13 font-graphik-regular text-secondary-dark">
                   {doc.created}
                 </span>
