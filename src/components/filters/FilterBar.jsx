@@ -41,10 +41,10 @@ const FilterBar = ({
     <div className="relative">
       <button
         onClick={onClick}
-        className={`flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-regular border rounded-md transition-colors
+        className={`flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-semibold rounded-md transition-colors
           ${hasFilter 
-            ? 'border-brand-primary bg-brand-primary/5 text-brand-primary' 
-            : 'border-gray-200 text-secondary-dark hover:border-gray-300 hover:bg-gray-50'
+            ? 'bg-brand-primary/10 text-brand-primary' 
+            : 'bg-gray-100 text-secondary-dark hover:bg-gray-200'
           }
         `}
       >
@@ -56,7 +56,7 @@ const FilterBar = ({
   );
 
   return (
-    <div className="flex items-center gap-2 mb-4" ref={filterRef}>
+    <div className="flex items-center gap-[20px] mb-4" ref={filterRef}>
       {/* Date Filter */}
       <FilterButton 
         label="Date" 
@@ -136,7 +136,7 @@ const FilterBar = ({
       </FilterButton>
 
       {/* More Button */}
-      <button className="flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-regular border border-gray-200 text-secondary-dark rounded-md hover:border-gray-300 hover:bg-gray-50 transition-colors">
+      <button className="flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-semibold bg-gray-100 text-secondary-dark rounded-md hover:bg-gray-200 transition-colors">
         More
         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
