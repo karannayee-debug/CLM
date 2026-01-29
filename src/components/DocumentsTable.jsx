@@ -3,10 +3,18 @@ import { DocumentPortraitIcon, ChevronDownIcon, ChevronRightIcon } from './Icons
 import StatusLabel from './StatusLabel';
 import Avatar from './Avatar';
 import { organizeByYear, organizeByCompany, organizeByStatus } from '../data/mockGmailDocuments';
+import { FilterBar } from './filters';
 
 const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '' }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [selectedItems, setSelectedItems] = useState(new Set());
+  
+  // Filter states
+  const [dateFilter, setDateFilter] = useState({ startDate: null, endDate: null });
+  const [statusFilter, setStatusFilter] = useState([]);
+  const [amountFilter, setAmountFilter] = useState(null);
+  const [ownerFilter, setOwnerFilter] = useState([]);
+  const [recipientsFilter, setRecipientsFilter] = useState([]);
 
   const toggleFolder = (folderId) => {
     setExpandedFolders(prev => ({
@@ -402,11 +410,42 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   // Get imported folder structure
   const importedFolders = currentTab === 'Imported' ? buildImportedFolderStructure() : [];
 
-  // Filter function for search
+  // Comprehensive filter function
   const filterBySearch = (doc) => {
-    if (!searchQuery.trim()) return true;
-    const query = searchQuery.toLowerCase().trim();
-    return doc.name.toLowerCase().includes(query);
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      if (!doc.name.toLowerCase().includes(query)) return false;
+    }
+
+    // Date filter
+    if (dateFilter.startDate || dateFilter.endDate) {
+      const docDate = doc.created ? new Date(doc.created) : (doc.date ? new Date(doc.date) : null);
+      if (docDate) {
+        if (dateFilter.startDate && docDate < dateFilter.startDate) return false;
+        if (dateFilter.endDate && docDate > dateFilter.endDate) return false;
+      }
+    }
+
+    // Status filter
+    if (statusFilter.length > 0) {
+      const docStatus = doc.status?.toLowerCase().replace(/\s+/g, '-') || '';
+      if (!statusFilter.includes(docStatus)) return false;
+    }
+
+    // Amount filter
+    if (amountFilter && amountFilter.from !== null) {
+      const docAmount = doc.amount ? parseFloat(doc.amount.replace(/[$,]/g, '')) : 0;
+      if (amountFilter.type === 'between') {
+        if (docAmount < amountFilter.from || (amountFilter.to !== null && docAmount > amountFilter.to)) return false;
+      } else if (amountFilter.type === 'greater') {
+        if (docAmount <= amountFilter.from) return false;
+      } else if (amountFilter.type === 'less') {
+        if (docAmount >= amountFilter.from) return false;
+      }
+    }
+
+    return true;
   };
 
   // Filter documents and folders based on search query
@@ -652,6 +691,20 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
 
   return (
     <div className="bg-white">
+      {/* Filter Bar */}
+      <FilterBar 
+        dateFilter={dateFilter}
+        setDateFilter={setDateFilter}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+        amountFilter={amountFilter}
+        setAmountFilter={setAmountFilter}
+        ownerFilter={ownerFilter}
+        setOwnerFilter={setOwnerFilter}
+        recipientsFilter={recipientsFilter}
+        setRecipientsFilter={setRecipientsFilter}
+      />
+
       {/* Table Header */}
       <div className="flex items-center h-10 border-b border-gray-100 text-13 font-graphik-regular text-[#767676]">
         <div className="flex-1 min-w-0 flex items-center">

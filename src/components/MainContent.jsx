@@ -26,14 +26,6 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
     { label: 'More', active: currentTab === 'More', badge: '6', hasDropdown: true }
   ];
 
-  const filters = [
-    'Date',
-    'Status',
-    'Amount',
-    'Owner',
-    'Recipients'
-  ];
-
   const handleTabClick = (tabLabel) => {
     onTabChange(tabLabel);
   };
@@ -50,12 +42,9 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
               </h1>
             </div>
               <div className="flex items-center gap-3">
-                <button 
-                  onClick={onOpenBulkImport}
-                  className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors"
-                >
+                <button className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors">
                   <FolderPlusIcon className="w-6 h-6 text-[#767676]" />
-                  Bulk import
+                  New folder
                 </button>
                 <div className="flex rounded shadow-subtle overflow-hidden">
                   <button 
@@ -166,27 +155,6 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
           </div>
           )}
         </div>
-
-        {/* Filters Row (hide when in folder view) */}
-        {!currentFolder && (
-          <div className="mb-6">
-          <div className="flex items-center gap-3">
-            {filters.map((filter, index) => (
-              <button
-                key={index}
-                className="filter-btn flex items-center gap-2"
-              >
-                {filter}
-                <ChevronDownIcon className="w-4 h-4" />
-              </button>
-            ))}
-            <button className="filter-btn flex items-center gap-2">
-              More
-              <PlusIcon className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-        )}
 
         {/* Documents Table */}
         <DocumentsTable 
