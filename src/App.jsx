@@ -17,7 +17,7 @@ function App() {
   const [importedOrganizationSettings, setImportedOrganizationSettings] = useState(null);
   const [currentTab, setCurrentTab] = useState('All documents');
   const [currentFolder, setCurrentFolder] = useState(null);
-  const [activePage, setActivePage] = useState('Documents');
+  const [activePage, setActivePage] = useState('Home');
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleOpenGmailImport = () => {
