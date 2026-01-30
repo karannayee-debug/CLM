@@ -3,6 +3,8 @@ import Sidebar from './components/Sidebar';
 import Header from './components/Header';
 import MainContent from './components/MainContent';
 import TemplatesContent from './components/TemplatesContent';
+import HomeContent from './components/HomeContent';
+import ContactsContent from './components/ContactsContent';
 import GmailImportModal from './components/GmailImportModal';
 import GetStartedPage from './components/GetStartedPage';
 import BulkImportPage from './components/BulkImportPage';
@@ -114,7 +116,12 @@ function App() {
         
         {/* Main content - Scrollable, full width */}
         <main className="flex-1 overflow-auto">
-          {activePage === 'Documents' ? (
+          {activePage === 'Home' && (
+            <HomeContent 
+              onNavigateToDocuments={() => setActivePage('Documents')}
+            />
+          )}
+          {activePage === 'Documents' && (
             <MainContent 
               importedDocuments={importedDocuments}
               importedOrganizationSettings={importedOrganizationSettings}
@@ -126,8 +133,12 @@ function App() {
               onOpenBulkImport={handleOpenBulkImport}
               searchQuery={searchQuery}
             />
-          ) : (
+          )}
+          {activePage === 'Templates' && (
             <TemplatesContent searchQuery={searchQuery} />
+          )}
+          {activePage === 'Contacts' && (
+            <ContactsContent />
           )}
         </main>
       </div>

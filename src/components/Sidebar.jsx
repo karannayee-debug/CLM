@@ -15,10 +15,10 @@ import {
 
 const Sidebar = ({ activePage, onPageChange }) => {
   const mainNavItems = [
-    { icon: HomeIcon, label: 'Home', active: false, disabled: true },
+    { icon: HomeIcon, label: 'Home', active: activePage === 'Home', page: 'Home' },
     { icon: DocumentIcon, label: 'Documents', active: activePage === 'Documents', page: 'Documents' },
     { icon: TemplateIcon, label: 'Templates', active: activePage === 'Templates', page: 'Templates' },
-    { icon: ContactsIcon, label: 'Contacts', active: false, disabled: true },
+    { icon: ContactsIcon, label: 'Contacts', active: activePage === 'Contacts', page: 'Contacts' },
     { icon: MoreIcon, label: 'More', active: false },
   ];
 

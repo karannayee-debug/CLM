@@ -204,10 +204,34 @@ export const ChevronDownIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
+export const ChevronLeftIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M15 18l-6-6 6-6"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 export const ChevronRightIcon = ({ className = "w-4 h-4" }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none">
     <path
       d="M9 18l6-6-6-6"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const ChevronUpIcon = ({ className = "w-4 h-4" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path
+      d="M18 15l-6-6-6 6"
       stroke="currentColor"
       strokeWidth="1.5"
       strokeLinecap="round"
