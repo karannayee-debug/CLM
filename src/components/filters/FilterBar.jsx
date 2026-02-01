@@ -22,6 +22,7 @@ const FilterBar = ({
   const [visibleFilters, setVisibleFilters] = useState(['date', 'status', 'owner', 'recipients', 'amount']);
   const [selectedNewFilters, setSelectedNewFilters] = useState([]);
   const [filterSearch, setFilterSearch] = useState('');
+  const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
 
@@ -192,23 +193,95 @@ const FilterBar = ({
         </FilterButton>
       )}
 
-      {/* Renewal Date Filter (placeholder) */}
+      {/* Renewal Date Filter */}
       {visibleFilters.includes('renewal-date') && (
         <FilterButton 
           label="Renewal Date" 
           isActive={activeFilter === 'renewal-date'}
           hasFilter={false}
-          onClick={() => setActiveFilter(activeFilter === 'renewal-date' ? null : 'renewal-date')}
+          onClick={() => {
+            setActiveFilter(activeFilter === 'renewal-date' ? null : 'renewal-date');
+            setShowRenewalDateCustom(false);
+          }}
         >
-          {activeFilter === 'renewal-date' && (
-            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
-              <p className="text-13 text-secondary-light">No renewal dates available</p>
+          {activeFilter === 'renewal-date' && !showRenewalDateCustom && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[180px]">
+              {/* Past Options */}
+              <div className="py-2">
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last day
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last 7 days
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last month
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last 3 months
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last 6 months
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Last year
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-gray-200"></div>
+
+              {/* Future Options */}
+              <div className="py-2">
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Next 7 days
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Next month
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Next 3 months
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Next 6 months
+                </button>
+                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                  Next year
+                </button>
+              </div>
+
+              {/* Divider */}
+              <div className="border-t border-gray-200"></div>
+
+              {/* Custom Option */}
+              <div className="py-2">
+                <button 
+                  onClick={() => setShowRenewalDateCustom(true)}
+                  className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors"
+                >
+                  Custom
+                </button>
+              </div>
             </div>
+          )}
+          {activeFilter === 'renewal-date' && showRenewalDateCustom && (
+            <DateRangeFilter 
+              isOpen={true}
+              onClose={() => {
+                setActiveFilter(null);
+                setShowRenewalDateCustom(false);
+              }}
+              onApply={(dates) => {
+                // Handle renewal date custom filter
+                setActiveFilter(null);
+                setShowRenewalDateCustom(false);
+              }}
+            />
           )}
         </FilterButton>
       )}
 
-      {/* Auto Renew Filter (placeholder) */}
+      {/* Auto Renew Filter */}
       {visibleFilters.includes('auto-renew') && (
         <FilterButton 
           label="Auto Renew" 
@@ -217,8 +290,40 @@ const FilterBar = ({
           onClick={() => setActiveFilter(activeFilter === 'auto-renew' ? null : 'auto-renew')}
         >
           {activeFilter === 'auto-renew' && (
-            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
-              <p className="text-13 text-secondary-light">No options available</p>
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]">
+              {/* Options */}
+              <div className="py-2">
+                <label className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+                  />
+                  <span className="text-14 font-graphik-regular text-secondary-dark">Yes</span>
+                </label>
+                <label className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
+                  <input
+                    type="checkbox"
+                    className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+                  />
+                  <span className="text-14 font-graphik-regular text-secondary-dark">No</span>
+                </label>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+                <button
+                  onClick={() => setActiveFilter(null)}
+                  className="px-4 py-2 text-13 font-graphik-regular text-secondary-dark hover:bg-gray-100 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setActiveFilter(null)}
+                  className="px-4 py-2 text-13 font-graphik-semibold text-white bg-brand-primary rounded hover:bg-opacity-90"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           )}
         </FilterButton>
