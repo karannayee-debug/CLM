@@ -27,6 +27,8 @@ const FilterBar = ({
   const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
   const [renewalDateFilter, setRenewalDateFilter] = useState(null);
   const [pendingAutoRenew, setPendingAutoRenew] = useState(null); // temporary selection before apply
+  const [durationFilter, setDurationFilter] = useState({ from: '', to: '' });
+  const [pendingDuration, setPendingDuration] = useState({ from: '', to: '' });
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
 
@@ -129,9 +131,10 @@ const FilterBar = ({
   const hasRecipientsFilter = recipientsFilter?.length > 0;
   const hasRenewalDateFilter = renewalDateFilter !== null;
   const hasAutoRenewFilter = autoRenewFilter !== null;
+  const hasDurationFilter = durationFilter.from !== '' || durationFilter.to !== '';
 
   // Check if any filter is applied
-  const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter || hasAutoRenewFilter;
+  const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter || hasAutoRenewFilter || hasDurationFilter;
 
   // Clear all filters
   const handleClearAllFilters = () => {
@@ -156,6 +159,7 @@ const FilterBar = ({
     }
     // Clear local filters
     setRenewalDateFilter(null);
+    setDurationFilter({ from: '', to: '' });
   };
 
   const toggleNewFilter = (filterId) => {
@@ -475,20 +479,103 @@ const FilterBar = ({
         </div>
       )}
 
-      {/* Duration (term) Filter (placeholder) */}
+      {/* Duration (term) Filter */}
       {visibleFilters.includes('duration') && (
-        <FilterButton 
-          label="Duration (term)" 
-          isActive={activeFilter === 'duration'}
-          hasFilter={false}
-          onClick={() => setActiveFilter(activeFilter === 'duration' ? null : 'duration')}
-        >
+        <div className="relative">
+          <button
+            onClick={() => {
+              if (activeFilter === 'duration') {
+                setActiveFilter(null);
+                setPendingDuration({ from: '', to: '' });
+              } else {
+                setActiveFilter('duration');
+                setPendingDuration(durationFilter);
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-semibold rounded-md transition-colors
+              ${hasDurationFilter
+                ? 'bg-brand-primary/10 text-brand-primary' 
+                : 'bg-gray-100 text-secondary-dark hover:bg-gray-200'
+              }
+            `}
+          >
+            {hasDurationFilter
+              ? `Term: ${durationFilter.from || 'Any'} months — ${durationFilter.to ? `${durationFilter.to} months` : 'Any'}`
+              : 'Duration (term)'
+            }
+            <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${activeFilter === 'duration' ? 'rotate-180' : ''}`} />
+          </button>
+
           {activeFilter === 'duration' && (
-            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
-              <p className="text-13 text-secondary-light">No durations available</p>
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[300px]">
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <span className="text-14 font-graphik-semibold text-secondary-dark">Filter by</span>
+                <button 
+                  onClick={() => setPendingDuration({ from: '', to: '' })}
+                  className="text-13 font-graphik-regular text-brand-primary hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
+
+              {/* FROM and TO side by side */}
+              <div className="flex gap-4 px-4 py-3">
+                {/* FROM Section */}
+                <div className="flex-1">
+                  <div className="text-11 font-graphik-regular text-secondary-light uppercase tracking-wide mb-2">From</div>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Any"
+                      value={pendingDuration.from}
+                      onChange={(e) => setPendingDuration({ ...pendingDuration, from: e.target.value })}
+                      className="w-16 px-3 py-2 text-14 font-graphik-regular border border-gray-300 rounded focus:outline-none focus:border-brand-primary"
+                    />
+                    <span className="text-14 font-graphik-regular text-secondary-dark">Months</span>
+                  </div>
+                </div>
+
+                {/* TO Section */}
+                <div className="flex-1">
+                  <div className="text-11 font-graphik-regular text-secondary-light uppercase tracking-wide mb-2">To</div>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="text" 
+                      placeholder="Any"
+                      value={pendingDuration.to}
+                      onChange={(e) => setPendingDuration({ ...pendingDuration, to: e.target.value })}
+                      className="w-16 px-3 py-2 text-14 font-graphik-regular border border-gray-300 rounded focus:outline-none focus:border-brand-primary"
+                    />
+                    <span className="text-14 font-graphik-regular text-secondary-dark">Months</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Buttons */}
+              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+                <button
+                  onClick={() => {
+                    setPendingDuration({ from: '', to: '' });
+                    setActiveFilter(null);
+                  }}
+                  className="px-4 py-2 text-13 font-graphik-regular text-secondary-dark hover:bg-gray-100 rounded"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setDurationFilter(pendingDuration);
+                    setActiveFilter(null);
+                  }}
+                  className="px-4 py-2 text-13 font-graphik-semibold text-white bg-brand-primary rounded hover:bg-opacity-90"
+                >
+                  Apply
+                </button>
+              </div>
             </div>
           )}
-        </FilterButton>
+        </div>
       )}
 
       {/* Document Type Filter (placeholder) */}
