@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, FolderPlusIcon, ChevronRightIcon } from './Icons';
+import { PlusIcon, FilterIcon, ChevronDownIcon, SparkleIcon, BulkDocumentsIcon, ChevronRightIcon } from './Icons';
 import DocumentsTable from './DocumentsTable';
 import Badge from './Badge';
 
@@ -46,7 +46,7 @@ const MainContent = ({ importedDocuments = [], importedOrganizationSettings = nu
                   onClick={onOpenBulkImport}
                   className="flex items-center gap-2 px-4 py-2.5 text-14 font-graphik-semibold text-secondary-light hover:bg-gray-50 transition-colors"
                 >
-                  <FolderPlusIcon className="w-6 h-6 text-[#767676]" />
+                  <BulkDocumentsIcon className="w-6 h-6 text-[#767676]" />
                   Bulk import
                 </button>
                 <div className="flex rounded shadow-subtle overflow-hidden">

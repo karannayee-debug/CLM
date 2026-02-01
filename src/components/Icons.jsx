@@ -18,6 +18,23 @@ export const FolderPlusIcon = ({ className = "w-6 h-6" }) => (
     />
   </svg>
 );
+
+export const BulkDocumentsIcon = ({ className = "w-6 h-6" }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <path 
+      fillRule="evenodd" 
+      clipRule="evenodd" 
+      d="M6 7H4V17H6V7ZM2 5V19H8V5H2Z" 
+      fill="currentColor"
+    />
+    <path 
+      fillRule="evenodd" 
+      clipRule="evenodd" 
+      d="M6 2V22H21V6.999L16 2H6ZM8 4H15V8H19V20H8V4Z" 
+      fill="currentColor"
+    />
+  </svg>
+);
 export const HomeIcon = ({ className = "w-5 h-5" }) => (
   <svg className={className} viewBox="0 0 20 20" fill="none">
     <path 
