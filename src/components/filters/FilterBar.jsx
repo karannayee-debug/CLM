@@ -15,7 +15,9 @@ const FilterBar = ({
   ownerFilter, 
   setOwnerFilter, 
   recipientsFilter, 
-  setRecipientsFilter 
+  setRecipientsFilter,
+  autoRenewFilter,
+  setAutoRenewFilter
 }) => {
   const [activeFilter, setActiveFilter] = useState(null);
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
@@ -24,7 +26,6 @@ const FilterBar = ({
   const [filterSearch, setFilterSearch] = useState('');
   const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
   const [renewalDateFilter, setRenewalDateFilter] = useState(null);
-  const [autoRenewFilter, setAutoRenewFilter] = useState(null); // null, 'yes', or 'no'
   const [pendingAutoRenew, setPendingAutoRenew] = useState(null); // temporary selection before apply
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
@@ -150,9 +151,11 @@ const FilterBar = ({
     if (typeof setRecipientsFilter === 'function') {
       setRecipientsFilter([]);
     }
+    if (typeof setAutoRenewFilter === 'function') {
+      setAutoRenewFilter(null);
+    }
     // Clear local filters
     setRenewalDateFilter(null);
-    setAutoRenewFilter(null);
   };
 
   const toggleNewFilter = (filterId) => {

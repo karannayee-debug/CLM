@@ -15,6 +15,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   const [amountFilter, setAmountFilter] = useState(null);
   const [ownerFilter, setOwnerFilter] = useState([]);
   const [recipientsFilter, setRecipientsFilter] = useState([]);
+  const [autoRenewFilter, setAutoRenewFilter] = useState(null);
 
   const toggleFolder = (folderId) => {
     setExpandedFolders(prev => ({
@@ -297,7 +298,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$4,250.00',
       created: 'May 21, 2024',
       avatar: '/CLM/images/4.png',
-      folder: 'proposal-templates'
+      folder: 'proposal-templates',
+      autoRenew: true
     },
     {
       id: 2,
@@ -307,7 +309,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$9,780.00',
       created: 'Nov 2, 2024',
       avatar: '/CLM/images/2.png',
-      folder: 'proposal-templates'
+      folder: 'proposal-templates',
+      autoRenew: true
     },
     {
       id: 4,
@@ -317,7 +320,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$6,560.00',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/3.png',
-      folder: 'proposal-templates'
+      folder: 'proposal-templates',
+      autoRenew: false
     },
     // Documents in 'ndas' folder
     {
@@ -328,7 +332,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/1.png',
-      folder: 'ndas'
+      folder: 'ndas',
+      autoRenew: false
     },
     {
       id: 5,
@@ -338,7 +343,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/4.png',
-      folder: 'ndas'
+      folder: 'ndas',
+      autoRenew: false
     },
     {
       id: 6,
@@ -348,7 +354,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$9,780.00',
       created: 'Nov 2, 2024',
       avatar: '/CLM/images/2.png',
-      folder: 'ndas'
+      folder: 'ndas',
+      autoRenew: true
     },
     // Standalone documents (not in any folder)
     {
@@ -358,7 +365,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       status: 'Draft',
       amount: '$4,250.00',
       created: 'May 21, 2024',
-      avatar: '/CLM/images/4.png'
+      avatar: '/CLM/images/4.png',
+      autoRenew: true
     },
     {
       id: 8,
@@ -367,7 +375,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       status: 'Sent',
       amount: '$9,780.00',
       created: 'Nov 2, 2024',
-      avatar: '/CLM/images/2.png'
+      avatar: '/CLM/images/2.png',
+      autoRenew: true
     },
     {
       id: 9,
@@ -376,7 +385,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       status: 'Completed',
       amount: '',
       created: 'Jan 10, 2025',
-      avatar: '/CLM/images/1.png'
+      avatar: '/CLM/images/1.png',
+      autoRenew: false
     },
     {
       id: 10,
@@ -385,7 +395,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       status: 'Awaiting approval',
       amount: '$6,560.00',
       created: 'Jan 10, 2025',
-      avatar: '/CLM/images/3.png'
+      avatar: '/CLM/images/3.png',
+      autoRenew: false
     },
     {
       id: 11,
@@ -394,7 +405,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       status: 'Rejected',
       amount: '',
       created: 'Jan 10, 2025',
-      avatar: '/CLM/images/4.png'
+      avatar: '/CLM/images/4.png',
+      autoRenew: false
     }
   ];
 
@@ -445,11 +457,72 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       }
     }
 
+    // Auto Renew filter
+    if (autoRenewFilter !== null) {
+      const docAutoRenew = doc.autoRenew === true;
+      if (autoRenewFilter === 'yes' && !docAutoRenew) return false;
+      if (autoRenewFilter === 'no' && docAutoRenew) return false;
+    }
+
     return true;
   };
 
   // Filter documents and folders based on search query
   const filteredDocuments = documents.filter(filterBySearch);
+
+  // Unique documents for autoRenew filter (deduplicated by name)
+  const uniqueDocumentsForAutoRenew = [
+    {
+      id: 'ar-1',
+      name: 'Proposal for Kraftwerk Events',
+      participants: 'Will Holland, Mariel Stacey',
+      status: 'Draft',
+      amount: '$4,250.00',
+      created: 'May 21, 2024',
+      avatar: '/CLM/images/4.png',
+      autoRenew: true
+    },
+    {
+      id: 'ar-2',
+      name: 'Equipment Purchase Proposal for Tresor Media',
+      participants: 'Emily Gold, Nathan Howard',
+      status: 'Sent',
+      amount: '$9,780.00',
+      created: 'Nov 2, 2024',
+      avatar: '/CLM/images/2.png',
+      autoRenew: true
+    },
+    {
+      id: 'ar-3',
+      name: 'Non-Disclosure Agreement for Brilliant Moments Inc.',
+      participants: 'Mariel Stacey',
+      status: 'Completed',
+      amount: '',
+      created: 'Jan 10, 2025',
+      avatar: '/CLM/images/1.png',
+      autoRenew: false
+    },
+    {
+      id: 'ar-4',
+      name: 'Equipment Purchase Proposal for Captured Moments',
+      participants: 'Andreya Triana, Will Holland',
+      status: 'Awaiting approval',
+      amount: '$6,560.00',
+      created: 'Jan 10, 2025',
+      avatar: '/CLM/images/3.png',
+      autoRenew: false
+    },
+    {
+      id: 'ar-5',
+      name: 'Non-Disclosure Agreement for Brilliant Moments Inc.',
+      participants: 'Andreya Triana, Will Holland',
+      status: 'Rejected',
+      amount: '',
+      created: 'Jan 10, 2025',
+      avatar: '/CLM/images/4.png',
+      autoRenew: false
+    }
+  ];
   
   const filteredFolders = populatedFolders.map(folder => ({
     ...folder,
@@ -703,6 +776,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         setOwnerFilter={setOwnerFilter}
         recipientsFilter={recipientsFilter}
         setRecipientsFilter={setRecipientsFilter}
+        autoRenewFilter={autoRenewFilter}
+        setAutoRenewFilter={setAutoRenewFilter}
       />
 
       {/* Table Header */}
@@ -762,8 +837,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           </>
         )}
 
-        {/* Show regular folders only when not in folder view and not on Imported tab */}
-        {currentTab !== 'Imported' && !currentFolder && filteredFolders.map((folder) => {
+        {/* Show regular folders only when not in folder view, not on Imported tab, and no autoRenew filter */}
+        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && filteredFolders.map((folder) => {
           const selected = isItemSelected(folder.id);
           return (
             <React.Fragment key={folder.id}>
@@ -873,8 +948,62 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           );
         })}
 
-        {/* Individual Documents (only show when not in folder view and not on Imported tab) */}
-        {currentTab !== 'Imported' && !currentFolder && filteredDocuments.map((doc) => {
+        {/* Individual Documents (only show when not in folder view, not on Imported tab, and no autoRenew filter) */}
+        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && filteredDocuments.map((doc) => {
+          const selected = isItemSelected(doc.id);
+          return (
+            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+              {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
+              <div className="flex-1 min-w-0 flex items-center">
+                <div className="w-12 flex justify-center">
+                  <input 
+                    type="checkbox" 
+                    checked={selected}
+                    onChange={(e) => toggleItemSelection(doc.id, e)}
+                    className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
+                  />
+                  <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
+                </div>
+                <div className="flex-1 pr-3 min-w-0">
+                  <div className="flex items-center gap-2.5">
+                    <h3 className="font-graphik-semibold text-14 text-secondary-dark truncate">
+                      {doc.name}
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-13 font-graphik-regular text-secondary-dark truncate">
+                      {doc.participants}
+                    </span>
+                    <ChevronDownIcon className="w-4 h-4 text-secondary-light flex-shrink-0" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Column */}
+              <div className="w-40 flex items-center">
+                <StatusLabel type={doc.status} />
+              </div>
+
+              {/* Amount Column */}
+              <div className="w-32 flex items-center justify-end">
+                <span className="text-13 font-graphik-regular text-secondary-dark">
+                  {doc.amount || '\u00A0'}
+                </span>
+              </div>
+
+              {/* Created Column */}
+              <div className="w-40 flex items-center gap-2 ml-6">
+                <Avatar src={doc.avatar} alt="User avatar" size="sm" />
+                <span className="text-13 font-graphik-regular text-secondary-dark">
+                  {doc.created}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* All Documents when autoRenewFilter is active (flattened view without folders) */}
+        {currentTab !== 'Imported' && !currentFolder && autoRenewFilter && uniqueDocumentsForAutoRenew.filter(filterBySearch).map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
             <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
