@@ -24,6 +24,8 @@ const FilterBar = ({
   const [filterSearch, setFilterSearch] = useState('');
   const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
   const [renewalDateFilter, setRenewalDateFilter] = useState(null);
+  const [autoRenewFilter, setAutoRenewFilter] = useState(null); // null, 'yes', or 'no'
+  const [pendingAutoRenew, setPendingAutoRenew] = useState(null); // temporary selection before apply
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
 
@@ -125,9 +127,10 @@ const FilterBar = ({
   const hasOwnerFilter = ownerFilter?.length > 0;
   const hasRecipientsFilter = recipientsFilter?.length > 0;
   const hasRenewalDateFilter = renewalDateFilter !== null;
+  const hasAutoRenewFilter = autoRenewFilter !== null;
 
   // Check if any filter is applied
-  const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter;
+  const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter || hasAutoRenewFilter;
 
   // Clear all filters
   const handleClearAllFilters = () => {
@@ -147,8 +150,9 @@ const FilterBar = ({
     if (typeof setRecipientsFilter === 'function') {
       setRecipientsFilter([]);
     }
-    // Clear local renewal date filter
+    // Clear local filters
     setRenewalDateFilter(null);
+    setAutoRenewFilter(null);
   };
 
   const toggleNewFilter = (filterId) => {
@@ -393,12 +397,31 @@ const FilterBar = ({
 
       {/* Auto Renew Filter */}
       {visibleFilters.includes('auto-renew') && (
-        <FilterButton 
-          label="Auto Renew" 
-          isActive={activeFilter === 'auto-renew'}
-          hasFilter={false}
-          onClick={() => setActiveFilter(activeFilter === 'auto-renew' ? null : 'auto-renew')}
-        >
+        <div className="relative">
+          <button
+            onClick={() => {
+              if (activeFilter === 'auto-renew') {
+                setActiveFilter(null);
+                setPendingAutoRenew(null);
+              } else {
+                setActiveFilter('auto-renew');
+                setPendingAutoRenew(autoRenewFilter); // initialize with current value
+              }
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-semibold rounded-md transition-colors
+              ${autoRenewFilter !== null
+                ? 'bg-brand-primary/10 text-brand-primary' 
+                : 'bg-gray-100 text-secondary-dark hover:bg-gray-200'
+              }
+            `}
+          >
+            {autoRenewFilter !== null
+              ? `Auto-renewable: ${autoRenewFilter === 'yes' ? 'Yes' : 'No'}`
+              : 'Auto Renew'
+            }
+            <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${activeFilter === 'auto-renew' ? 'rotate-180' : ''}`} />
+          </button>
+
           {activeFilter === 'auto-renew' && (
             <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[200px]">
               {/* Options */}
@@ -406,6 +429,8 @@ const FilterBar = ({
                 <label className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
+                    checked={pendingAutoRenew === 'yes'}
+                    onChange={() => setPendingAutoRenew(pendingAutoRenew === 'yes' ? null : 'yes')}
                     className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
                   />
                   <span className="text-14 font-graphik-regular text-secondary-dark">Yes</span>
@@ -413,6 +438,8 @@ const FilterBar = ({
                 <label className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors">
                   <input
                     type="checkbox"
+                    checked={pendingAutoRenew === 'no'}
+                    onChange={() => setPendingAutoRenew(pendingAutoRenew === 'no' ? null : 'no')}
                     className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
                   />
                   <span className="text-14 font-graphik-regular text-secondary-dark">No</span>
@@ -422,13 +449,19 @@ const FilterBar = ({
               {/* Footer Buttons */}
               <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
                 <button
-                  onClick={() => setActiveFilter(null)}
+                  onClick={() => {
+                    setPendingAutoRenew(null);
+                    setActiveFilter(null);
+                  }}
                   className="px-4 py-2 text-13 font-graphik-regular text-secondary-dark hover:bg-gray-100 rounded"
                 >
                   Cancel
                 </button>
                 <button
-                  onClick={() => setActiveFilter(null)}
+                  onClick={() => {
+                    setAutoRenewFilter(pendingAutoRenew);
+                    setActiveFilter(null);
+                  }}
                   className="px-4 py-2 text-13 font-graphik-semibold text-white bg-brand-primary rounded hover:bg-opacity-90"
                 >
                   Apply
@@ -436,7 +469,7 @@ const FilterBar = ({
               </div>
             </div>
           )}
-        </FilterButton>
+        </div>
       )}
 
       {/* Duration (term) Filter (placeholder) */}
