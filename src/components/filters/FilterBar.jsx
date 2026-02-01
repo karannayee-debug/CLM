@@ -23,8 +23,81 @@ const FilterBar = ({
   const [selectedNewFilters, setSelectedNewFilters] = useState([]);
   const [filterSearch, setFilterSearch] = useState('');
   const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
+  const [renewalDateFilter, setRenewalDateFilter] = useState(null);
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
+
+  // Helper function to format date as "Mon D, YYYY"
+  const formatDate = (date) => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+  };
+
+  // Helper function to calculate date ranges
+  const calculateDateRange = (option) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    let startDate = new Date(today);
+    let endDate = new Date(today);
+
+    switch (option) {
+      case 'last-day':
+        startDate.setDate(startDate.getDate() - 1);
+        endDate = new Date(today);
+        break;
+      case 'last-7-days':
+        startDate.setDate(startDate.getDate() - 7);
+        endDate = new Date(today);
+        break;
+      case 'last-month':
+        startDate.setMonth(startDate.getMonth() - 1);
+        endDate = new Date(today);
+        break;
+      case 'last-3-months':
+        startDate.setMonth(startDate.getMonth() - 3);
+        endDate = new Date(today);
+        break;
+      case 'last-6-months':
+        startDate.setMonth(startDate.getMonth() - 6);
+        endDate = new Date(today);
+        break;
+      case 'last-year':
+        startDate.setFullYear(startDate.getFullYear() - 1);
+        endDate = new Date(today);
+        break;
+      case 'next-7-days':
+        startDate = new Date(today);
+        endDate.setDate(endDate.getDate() + 7);
+        break;
+      case 'next-month':
+        startDate = new Date(today);
+        endDate.setMonth(endDate.getMonth() + 1);
+        break;
+      case 'next-3-months':
+        startDate = new Date(today);
+        endDate.setMonth(endDate.getMonth() + 3);
+        break;
+      case 'next-6-months':
+        startDate = new Date(today);
+        endDate.setMonth(endDate.getMonth() + 6);
+        break;
+      case 'next-year':
+        startDate = new Date(today);
+        endDate.setFullYear(endDate.getFullYear() + 1);
+        break;
+      default:
+        return null;
+    }
+    return { startDate, endDate };
+  };
+
+  const handleRenewalDateSelect = (option) => {
+    const dateRange = calculateDateRange(option);
+    if (dateRange) {
+      setRenewalDateFilter(dateRange);
+      setActiveFilter(null);
+    }
+  };
 
   // Additional filters that can be added via "More +"
   const additionalFilters = [
@@ -195,35 +268,46 @@ const FilterBar = ({
 
       {/* Renewal Date Filter */}
       {visibleFilters.includes('renewal-date') && (
-        <FilterButton 
-          label="Renewal Date" 
-          isActive={activeFilter === 'renewal-date'}
-          hasFilter={false}
-          onClick={() => {
-            setActiveFilter(activeFilter === 'renewal-date' ? null : 'renewal-date');
-            setShowRenewalDateCustom(false);
-          }}
-        >
+        <div className="relative">
+          <button
+            onClick={() => {
+              setActiveFilter(activeFilter === 'renewal-date' ? null : 'renewal-date');
+              setShowRenewalDateCustom(false);
+            }}
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-13 font-graphik-semibold rounded-md transition-colors
+              ${renewalDateFilter 
+                ? 'bg-brand-primary/10 text-brand-primary' 
+                : 'bg-gray-100 text-secondary-dark hover:bg-gray-200'
+              }
+            `}
+          >
+            {renewalDateFilter 
+              ? `Renewal Date: ${formatDate(renewalDateFilter.startDate)} — ${formatDate(renewalDateFilter.endDate)}`
+              : 'Renewal Date'
+            }
+            <ChevronDownIcon className={`w-3.5 h-3.5 transition-transform ${activeFilter === 'renewal-date' ? 'rotate-180' : ''}`} />
+          </button>
+
           {activeFilter === 'renewal-date' && !showRenewalDateCustom && (
             <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 z-50 min-w-[180px]">
               {/* Past Options */}
               <div className="py-2">
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-day')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last day
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-7-days')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last 7 days
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-month')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last month
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-3-months')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last 3 months
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-6-months')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last 6 months
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('last-year')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Last year
                 </button>
               </div>
@@ -233,19 +317,19 @@ const FilterBar = ({
 
               {/* Future Options */}
               <div className="py-2">
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('next-7-days')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Next 7 days
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('next-month')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Next month
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('next-3-months')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Next 3 months
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('next-6-months')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Next 6 months
                 </button>
-                <button className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
+                <button onClick={() => handleRenewalDateSelect('next-year')} className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-secondary-dark hover:bg-gray-50 transition-colors">
                   Next year
                 </button>
               </div>
@@ -272,13 +356,13 @@ const FilterBar = ({
                 setShowRenewalDateCustom(false);
               }}
               onApply={(dates) => {
-                // Handle renewal date custom filter
+                setRenewalDateFilter(dates);
                 setActiveFilter(null);
                 setShowRenewalDateCustom(false);
               }}
             />
           )}
-        </FilterButton>
+        </div>
       )}
 
       {/* Auto Renew Filter */}
