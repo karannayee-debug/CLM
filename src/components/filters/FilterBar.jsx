@@ -17,7 +17,9 @@ const FilterBar = ({
   recipientsFilter, 
   setRecipientsFilter,
   autoRenewFilter,
-  setAutoRenewFilter
+  setAutoRenewFilter,
+  durationFilter,
+  setDurationFilter
 }) => {
   const [activeFilter, setActiveFilter] = useState(null);
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
@@ -27,7 +29,6 @@ const FilterBar = ({
   const [showRenewalDateCustom, setShowRenewalDateCustom] = useState(false);
   const [renewalDateFilter, setRenewalDateFilter] = useState(null);
   const [pendingAutoRenew, setPendingAutoRenew] = useState(null); // temporary selection before apply
-  const [durationFilter, setDurationFilter] = useState({ from: '', to: '' });
   const [pendingDuration, setPendingDuration] = useState({ from: '', to: '' });
   const filterRef = useRef(null);
   const moreButtonRef = useRef(null);
@@ -131,7 +132,7 @@ const FilterBar = ({
   const hasRecipientsFilter = recipientsFilter?.length > 0;
   const hasRenewalDateFilter = renewalDateFilter !== null;
   const hasAutoRenewFilter = autoRenewFilter !== null;
-  const hasDurationFilter = durationFilter.from !== '' || durationFilter.to !== '';
+  const hasDurationFilter = durationFilter?.from !== '' || durationFilter?.to !== '';
 
   // Check if any filter is applied
   const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter || hasAutoRenewFilter || hasDurationFilter;
@@ -157,9 +158,11 @@ const FilterBar = ({
     if (typeof setAutoRenewFilter === 'function') {
       setAutoRenewFilter(null);
     }
+    if (typeof setDurationFilter === 'function') {
+      setDurationFilter({ from: '', to: '' });
+    }
     // Clear local filters
     setRenewalDateFilter(null);
-    setDurationFilter({ from: '', to: '' });
   };
 
   const toggleNewFilter = (filterId) => {

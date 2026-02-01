@@ -16,6 +16,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
   const [ownerFilter, setOwnerFilter] = useState([]);
   const [recipientsFilter, setRecipientsFilter] = useState([]);
   const [autoRenewFilter, setAutoRenewFilter] = useState(null);
+  const [durationFilter, setDurationFilter] = useState({ from: '', to: '' });
 
   const toggleFolder = (folderId) => {
     setExpandedFolders(prev => ({
@@ -464,6 +465,15 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       if (autoRenewFilter === 'no' && docAutoRenew) return false;
     }
 
+    // Duration filter
+    if (durationFilter.from !== '' || durationFilter.to !== '') {
+      const docDuration = doc.duration || 0;
+      const fromMonths = durationFilter.from !== '' ? parseInt(durationFilter.from, 10) : 0;
+      const toMonths = durationFilter.to !== '' ? parseInt(durationFilter.to, 10) : Infinity;
+      
+      if (docDuration < fromMonths || docDuration > toMonths) return false;
+    }
+
     return true;
   };
 
@@ -480,7 +490,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$4,250.00',
       created: 'May 21, 2024',
       avatar: '/CLM/images/4.png',
-      autoRenew: true
+      autoRenew: true,
+      duration: 12
     },
     {
       id: 'ar-2',
@@ -490,7 +501,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$9,780.00',
       created: 'Nov 2, 2024',
       avatar: '/CLM/images/2.png',
-      autoRenew: true
+      autoRenew: true,
+      duration: 12
     },
     {
       id: 'ar-3',
@@ -500,7 +512,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/1.png',
-      autoRenew: false
+      autoRenew: false,
+      duration: 24
     },
     {
       id: 'ar-4',
@@ -510,7 +523,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '$6,560.00',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/3.png',
-      autoRenew: false
+      autoRenew: false,
+      duration: 6
     },
     {
       id: 'ar-5',
@@ -520,7 +534,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
       amount: '',
       created: 'Jan 10, 2025',
       avatar: '/CLM/images/4.png',
-      autoRenew: false
+      autoRenew: false,
+      duration: 36
     }
   ];
   
@@ -778,6 +793,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         setRecipientsFilter={setRecipientsFilter}
         autoRenewFilter={autoRenewFilter}
         setAutoRenewFilter={setAutoRenewFilter}
+        durationFilter={durationFilter}
+        setDurationFilter={setDurationFilter}
       />
 
       {/* Table Header */}
@@ -837,8 +854,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           </>
         )}
 
-        {/* Show regular folders only when not in folder view, not on Imported tab, and no autoRenew filter */}
-        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && filteredFolders.map((folder) => {
+        {/* Show regular folders only when not in folder view, not on Imported tab, and no autoRenew/duration filter */}
+        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && !(durationFilter.from !== '' || durationFilter.to !== '') && filteredFolders.map((folder) => {
           const selected = isItemSelected(folder.id);
           return (
             <React.Fragment key={folder.id}>
@@ -948,8 +965,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           );
         })}
 
-        {/* Individual Documents (only show when not in folder view, not on Imported tab, and no autoRenew filter) */}
-        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && filteredDocuments.map((doc) => {
+        {/* Individual Documents (only show when not in folder view, not on Imported tab, and no autoRenew/duration filter) */}
+        {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && !(durationFilter.from !== '' || durationFilter.to !== '') && filteredDocuments.map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
             <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
@@ -1002,8 +1019,8 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
           );
         })}
 
-        {/* All Documents when autoRenewFilter is active (flattened view without folders) */}
-        {currentTab !== 'Imported' && !currentFolder && autoRenewFilter && uniqueDocumentsForAutoRenew.filter(filterBySearch).map((doc) => {
+        {/* All Documents when autoRenewFilter or durationFilter is active (flattened view without folders) */}
+        {currentTab !== 'Imported' && !currentFolder && (autoRenewFilter || (durationFilter.from !== '' || durationFilter.to !== '')) && uniqueDocumentsForAutoRenew.filter(filterBySearch).map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
             <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
