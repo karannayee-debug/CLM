@@ -8,12 +8,51 @@ const FolderIcon = ({ className }) => (
   </svg>
 );
 
+// Folder outline icon (smaller)
+const FolderOutlineIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+  </svg>
+);
+
 // Upload icon
 const UploadIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="17 8 12 3 7 8" />
     <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+// Sparkle icon for AI info
+const SparkleInfoIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 16 16" fill="none">
+    <path d="M8 1l1.5 4.5L14 7l-4.5 1.5L8 13l-1.5-4.5L2 7l4.5-1.5L8 1z" fill="currentColor"/>
+  </svg>
+);
+
+// Gmail icon
+const GmailIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24">
+    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/>
+  </svg>
+);
+
+// Google Drive icon
+const GoogleDriveIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24">
+    <path d="M4.433 22l4.006-6.928H24l-4.006 6.928z" fill="#3777E3"/>
+    <path d="M15.567 2L7.994 15.072 4.433 22l4.006-6.928L15.567 2z" fill="#FFCF63"/>
+    <path d="M24 15.072H8.439L15.567 2h7.566z" fill="#11A861"/>
+  </svg>
+);
+
+// More horizontal icon
+const MoreHorizontalIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    <circle cx="5" cy="12" r="2" fill="currentColor"/>
+    <circle cx="12" cy="12" r="2" fill="currentColor"/>
+    <circle cx="19" cy="12" r="2" fill="currentColor"/>
   </svg>
 );
 
@@ -295,11 +334,18 @@ const CheckmarkIcon = () => (
   </svg>
 );
 
-// Spinner icon for processing
+// Spinner icon for processing (circular loading)
 const SpinnerIcon = () => (
-  <svg className="w-5 h-5 animate-spin" viewBox="0 0 20 20" fill="none">
-    <circle cx="10" cy="10" r="8" stroke="#E5E7EB" strokeWidth="2"/>
-    <path d="M10 2a8 8 0 018 8" stroke="#248567" strokeWidth="2" strokeLinecap="round"/>
+  <svg className="w-6 h-6 animate-spin" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="#E5E7EB" strokeWidth="2"/>
+    <path d="M12 2a10 10 0 0110 10" stroke="#248567" strokeWidth="2" strokeLinecap="round"/>
+  </svg>
+);
+
+// Pending icon (empty circle)
+const PendingIcon = () => (
+  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10" stroke="#D1D5DB" strokeWidth="2"/>
   </svg>
 );
 
@@ -320,6 +366,7 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
   const [currentStep, setCurrentStep] = useState(1); // 1 = Select Documents, 2 = Import
   const [fileStatuses, setFileStatuses] = useState([]); // Track status of each file: 'pending', 'processing', 'imported'
   const [showToast, setShowToast] = useState(false);
+  const [isWidgetExpanded, setIsWidgetExpanded] = useState(true);
 
   const statusOptions = ['Draft', 'Sent', 'Completed', 'Awaiting approval', 'Rejected'];
 
@@ -383,181 +430,37 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
     console.log('Dropped files:', files);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
-      
-      {/* Modal */}
-      <div className="relative bg-[#f4f4f4] w-[1400px] max-w-[95vw] h-[760px] max-h-[95vh] flex flex-col">
-        {/* Header with stepper */}
-        <div className="bg-white h-[60px] flex items-center justify-center relative border-b border-gray-200">
-          {/* Stepper */}
-          <div className="flex items-center gap-5">
-            {/* Step 1 */}
-            <div className="flex items-center gap-1">
-              <div className="w-6 h-6 flex items-center justify-center">
-                {currentStep === 2 ? (
-                  <svg className="w-4 h-4 text-[#248567]" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8l4 4 6-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : (
-                  <div className="w-[7px] h-[7px] rounded-full bg-[#248567]" />
-                )}
-              </div>
-              <span className="text-13 font-graphik-semibold text-[#248567]">
-                Select Documents
-              </span>
-            </div>
-
-            {/* Arrow */}
-            <ChevronRightIcon className="w-3 h-6 text-gray-400" />
-
-            {/* Step 2 */}
-            <div className="flex items-center gap-1">
-              <div className="w-6 h-6 flex items-center justify-center">
-                {currentStep === 2 ? (
-                  <div className="w-[7px] h-[7px] rounded-full bg-[#007AFF]" />
-                ) : (
-                  <div className="w-[7px] h-[7px] rounded-full bg-[#767676]" />
-                )}
-              </div>
-              <span className={`text-13 font-graphik-semibold ${currentStep === 2 ? 'text-[#007AFF]' : 'text-[#767676]'}`}>
-                Import
-              </span>
-            </div>
+  // Step 2: Show small widget in bottom right corner
+  if (currentStep === 2) {
+    return (
+      <>
+        {/* Small Import Widget - Bottom Right */}
+        <div className="fixed bottom-0 right-6 z-50 w-[360px] bg-white border border-[#e4e4e4] border-b-0 rounded-t-lg shadow-[0px_-2px_4px_0px_rgba(47,47,47,0.04),0px_-4px_16px_0px_rgba(47,47,47,0.12)]">
+          {/* Header */}
+          <div 
+            className="flex items-center gap-2 px-5 pt-4 pb-3 cursor-pointer"
+            onClick={() => setIsWidgetExpanded(!isWidgetExpanded)}
+          >
+            <p className="flex-1 text-14 font-graphik-semibold text-[#2f2f2f]">
+              Imported {importedCount} of {selectedFiles.length} files
+            </p>
+            <svg 
+              className={`w-6 h-6 text-[#767676] transition-transform ${isWidgetExpanded ? '' : 'rotate-180'}`} 
+              viewBox="0 0 24 24" 
+              fill="none"
+            >
+              <path d="M7 10l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
 
-          {/* Close button */}
-          <button
-            onClick={onClose}
-            className="absolute right-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <XIcon className="w-5 h-5 text-[#767676]" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 flex flex-col items-center pt-12 px-8 overflow-auto">
-          {currentStep === 1 ? (
-            /* Step 1: Select Documents */
-            <div className="w-[800px] max-w-full">
-              {/* Title */}
-              <h1 className="text-24 font-graphik-bold text-black mb-5">
-                Select documents
-              </h1>
-
-              {/* Cards row */}
-              <div className="flex gap-5 mb-4">
-                {/* Destination Folder Card */}
-                <div className="flex-1 bg-white shadow-sm p-4 pt-2">
-                  <div className="py-2.5 mb-2">
-                    <span className="text-12 font-graphik-regular text-[#767676] uppercase tracking-wider">
-                      DESTINATION FOLDER
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <FolderIcon className="w-5 h-5 text-[#767676]" />
-                      <span className="text-14 font-graphik-regular text-secondary-dark">All</span>
-                    </div>
-                    <button className="px-4 py-1.5 bg-gray-100 text-14 font-graphik-semibold text-secondary-dark rounded hover:bg-gray-200 transition-colors">
-                      Change
-                    </button>
-                  </div>
-                </div>
-
-                {/* Document Status Card */}
-                <div className="flex-1 bg-white shadow-sm p-4 pt-2">
-                  <div className="py-2.5 mb-2">
-                    <span className="text-12 font-graphik-regular text-[#767676] uppercase tracking-wider">
-                      DOCUMENT STATUS
-                    </span>
-                  </div>
-                  <div className="relative">
-                    <button
-                      onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-                      className="w-full h-8 px-2 border border-gray-200 rounded flex items-center justify-between bg-white hover:border-gray-300 transition-colors"
-                    >
-                      <span className="text-14 font-graphik-regular text-[#767676]">
-                        {selectedStatus}
-                      </span>
-                      <ChevronDownIcon className="w-5 h-5 text-[#767676]" />
-                    </button>
-                    
-                    {isStatusDropdownOpen && (
-                      <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-10">
-                        {statusOptions.map((status) => (
-                          <button
-                            key={status}
-                            onClick={() => {
-                              setSelectedStatus(status);
-                              setIsStatusDropdownOpen(false);
-                            }}
-                            className={`w-full px-3 py-2 text-left text-14 font-graphik-regular hover:bg-gray-50 transition-colors ${
-                              selectedStatus === status ? 'text-[#248567] bg-gray-50' : 'text-secondary-dark'
-                            }`}
-                          >
-                            {status}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Upload Zone */}
-              <div
-                className={`h-[189px] border-2 border-dashed rounded flex flex-col items-center justify-center transition-colors ${
-                  isDragOver ? 'border-[#248567] bg-[#248567]/5' : 'border-gray-300 bg-white'
-                }`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-              >
-                <p className="text-14 font-graphik-semibold text-[#2f2f2f] mb-2">
-                  Drag and drop your file here
-                </p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f] mb-4">
-                  Supported files: PDF, Word, PowerPoint, JPG, PNG
-                </p>
-                <button 
-                  onClick={() => setIsFilePickerOpen(true)}
-                  className="flex items-center gap-1 px-2 h-8 bg-white rounded shadow-sm hover:shadow transition-shadow"
-                >
-                  <UploadIcon className="w-5 h-5 text-[#248567]" />
-                  <span className="text-14 font-graphik-semibold text-[#248567]">
-                    Select file
-                  </span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            /* Step 2: Import Progress */
-            <div className="w-[800px] max-w-full">
-              {/* Title */}
-              <h1 className="text-24 font-graphik-bold text-black mb-5">
-                Imported {importedCount} of {selectedFiles.length} files
-              </h1>
-
-              {/* Folder indicator */}
-              <div className="flex items-center gap-2 mb-2">
-                <FolderIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-secondary-dark">All</span>
-              </div>
-
-              {/* Info message */}
-              <p className="text-14 font-graphik-regular text-[#767676] mb-6">
-                Keep this window open so your bulk import can continue uninterrupted.
-              </p>
-
-              {/* Files list */}
-              <div className="bg-white shadow-sm rounded overflow-hidden mb-6">
+          {/* File List - Collapsible */}
+          {isWidgetExpanded && (
+            <>
+              <div className="max-h-[172px] overflow-y-auto">
                 {selectedFiles.map((file, index) => (
                   <div 
                     key={index} 
-                    className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 last:border-0"
+                    className="flex items-center gap-4 px-4 py-3 border-b border-[#efefef] bg-white shadow-[0px_0px_1px_0px_rgba(47,47,47,0.08),0px_0.5px_2px_0px_rgba(47,47,47,0.12)]"
                   >
                     {/* Status icon */}
                     <div className="flex-shrink-0">
@@ -566,56 +469,40 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
                       ) : fileStatuses[index] === 'processing' ? (
                         <SpinnerIcon />
                       ) : (
-                        <div className="w-5 h-5 rounded-full border-2 border-gray-300" />
+                        <PendingIcon />
                       )}
                     </div>
                     
-                    {/* File info */}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-14 font-graphik-semibold text-secondary-dark truncate">
-                        {file}.docx
-                      </p>
-                      <p className="text-13 font-graphik-regular text-[#767676]">
-                        {fileStatuses[index] === 'imported' ? 'Imported' : 
-                         fileStatuses[index] === 'processing' ? 'Processing..' : 
-                         'Pending'}
-                      </p>
-                    </div>
+                    {/* File name */}
+                    <p className="text-14 font-graphik-regular text-[#2f2f2f] truncate">
+                      {file}.pdf
+                    </p>
                   </div>
                 ))}
               </div>
 
-              {/* Action button */}
-              <div className="flex justify-end">
-                {allImported ? (
-                  <button
-                    onClick={() => {
-                      if (onImportComplete) {
-                        onImportComplete(selectedFiles);
-                      } else {
-                        onClose();
-                      }
-                    }}
-                    className="px-6 py-2.5 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52] transition-colors"
-                  >
-                    Continue
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleCancelImport}
-                    className="px-6 py-2.5 border border-gray-300 text-14 font-graphik-semibold text-secondary-dark rounded hover:bg-gray-50 transition-colors"
-                  >
-                    Cancel import
-                  </button>
-                )}
+              {/* Footer with Cancel button */}
+              <div className="px-4 py-4 border-t border-[#efefef] bg-white">
+                <button
+                  onClick={allImported ? () => {
+                    if (onImportComplete) {
+                      onImportComplete(selectedFiles);
+                    } else {
+                      onClose();
+                    }
+                  } : handleCancelImport}
+                  className="w-full py-2.5 bg-[#efefef] text-14 font-graphik-semibold text-[#2f2f2f] rounded hover:bg-[#e4e4e4] transition-colors"
+                >
+                  {allImported ? 'Done' : 'Cancel import'}
+                </button>
               </div>
-            </div>
+            </>
           )}
         </div>
 
         {/* Toast notification */}
         {showToast && (
-          <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-[#2F2F2F] text-white px-4 py-3 rounded-lg flex items-center gap-3 shadow-lg">
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50 bg-[#2F2F2F] text-white px-4 py-3 rounded-lg flex items-center gap-3 shadow-lg">
             <InfoIcon />
             <span className="text-14 font-graphik-regular">
               {selectedFiles.length} files have been imported.
@@ -628,6 +515,173 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
             </button>
           </div>
         )}
+      </>
+    );
+  }
+
+  // Step 1: Show large modal for selecting documents
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/30" onClick={onClose} />
+      
+      {/* Modal */}
+      <div className="relative bg-white w-[1200px] max-w-[95vw] h-[760px] max-h-[95vh] flex flex-col">
+        {/* Header */}
+        <div className="h-[56px] px-8 flex items-center justify-between border-b border-[#e4e4e4]">
+          <span className="text-16 font-graphik-semibold text-[#181818]">
+            Select documents
+          </span>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <XIcon className="w-6 h-6 text-[#767676]" />
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col px-[100px] py-8 overflow-auto">
+          <div className="flex flex-col gap-6 max-w-[1000px] mx-auto w-full">
+            {/* Title row with folder dropdown */}
+            <div className="flex items-center justify-between">
+              <h1 className="text-18 font-graphik-bold text-[#2f2f2f]">
+                Upload files
+              </h1>
+              <button className="flex items-center gap-1.5 text-14 font-graphik-regular text-[#474747] hover:text-[#2f2f2f] transition-colors">
+                <FolderOutlineIcon className="w-5 h-5" />
+                <span>All documents</span>
+                <ChevronDownIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Document Status Section */}
+            <div className="flex flex-col gap-3">
+              <span className="text-12 font-graphik-semibold text-[#2f2f2f] uppercase tracking-[1.2px]">
+                Document status
+              </span>
+              
+              <div className="flex gap-3">
+                {/* Completed Card */}
+                <button
+                  onClick={() => setSelectedStatus('Completed')}
+                  className={`flex-1 p-4 rounded border-2 text-left transition-all ${
+                    selectedStatus === 'Completed' 
+                      ? 'border-[#248567] bg-white' 
+                      : 'border-[#e4e4e4] bg-white hover:border-[#adadad]'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      selectedStatus === 'Completed' ? 'border-[#248567]' : 'border-[#adadad]'
+                    }`}>
+                      {selectedStatus === 'Completed' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#248567]" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-14 font-graphik-semibold text-[#2f2f2f]">Completed</span>
+                      <span className="text-13 font-graphik-regular text-[#767676]">
+                        Best for legacy documents that need to be added to repository
+                      </span>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Draft Card */}
+                <button
+                  onClick={() => setSelectedStatus('Draft')}
+                  className={`flex-1 p-4 rounded border-2 text-left transition-all ${
+                    selectedStatus === 'Draft' 
+                      ? 'border-[#248567] bg-white' 
+                      : 'border-[#e4e4e4] bg-white hover:border-[#adadad]'
+                  }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                      selectedStatus === 'Draft' ? 'border-[#248567]' : 'border-[#adadad]'
+                    }`}>
+                      {selectedStatus === 'Draft' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#248567]" />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-14 font-graphik-semibold text-[#2f2f2f]">Draft</span>
+                      <span className="text-13 font-graphik-regular text-[#767676]">
+                        Best for documents that need to be sent or get signed
+                      </span>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Info Alert - Purple */}
+                <div className="w-[280px] bg-[#F3E8FF] rounded p-4 flex gap-3">
+                  <SparkleInfoIcon className="w-4 h-4 text-[#7C3AED] flex-shrink-0 mt-0.5" />
+                  <span className="text-13 font-graphik-regular text-[#2f2f2f]">
+                    We will automatically extract key terms, such as renewal dates and contract value for all completed documents
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Upload Zone */}
+            <div
+              className={`flex-1 min-h-[320px] border border-dashed rounded-lg flex flex-col items-center justify-center gap-6 transition-colors ${
+                isDragOver ? 'border-[#248567] bg-[#248567]/5' : 'border-[#adadad] bg-white'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              {/* Text */}
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-14 font-graphik-semibold text-[#2f2f2f]">
+                  Drag and drop files
+                </p>
+                <p className="text-13 font-graphik-regular text-[#767676]">
+                  PDF, Word, PowerPoint, JPG, PNG
+                </p>
+              </div>
+
+              {/* Document illustration with upload icon - clickable */}
+              <button 
+                onClick={() => setIsFilePickerOpen(true)}
+                className="relative w-16 h-20 cursor-pointer hover:scale-105 transition-transform"
+              >
+                <div className="absolute inset-0 bg-[#f8f8f8] border border-[#e4e4e4] rounded-lg shadow-sm flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-white border border-[#e4e4e4] flex items-center justify-center">
+                    <UploadIcon className="w-5 h-5 text-[#248567]" />
+                  </div>
+                </div>
+              </button>
+
+              {/* Import buttons */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => setIsFilePickerOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-[#e4e4e4] rounded-lg hover:border-[#adadad] hover:bg-gray-50 transition-colors bg-white"
+                >
+                  <img src="/CLM/gmail-icon.png" alt="Gmail" className="w-5 h-5 object-contain" />
+                  <span className="text-13 font-graphik-regular text-[#2f2f2f]">Import from Mail</span>
+                </button>
+                <button 
+                  onClick={() => setIsFilePickerOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-[#e4e4e4] rounded-lg hover:border-[#adadad] hover:bg-gray-50 transition-colors bg-white"
+                >
+                  <img src="/CLM/gdrive-icon.png" alt="Google Drive" className="w-5 h-5 object-contain" />
+                  <span className="text-13 font-graphik-regular text-[#2f2f2f]">Import from Storage</span>
+                </button>
+                <button 
+                  onClick={() => setIsFilePickerOpen(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 border border-[#e4e4e4] rounded-lg hover:border-[#adadad] hover:bg-gray-50 transition-colors bg-white"
+                >
+                  <MoreHorizontalIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-13 font-graphik-regular text-[#2f2f2f]">More import options</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* File Picker Modal */}
