@@ -124,6 +124,32 @@ const FilterBar = ({
   const hasAmountFilter = amountFilter?.from !== null && amountFilter?.from !== undefined;
   const hasOwnerFilter = ownerFilter?.length > 0;
   const hasRecipientsFilter = recipientsFilter?.length > 0;
+  const hasRenewalDateFilter = renewalDateFilter !== null;
+
+  // Check if any filter is applied
+  const hasAnyFilter = hasDateFilter || hasStatusFilter || hasAmountFilter || hasOwnerFilter || hasRecipientsFilter || hasRenewalDateFilter;
+
+  // Clear all filters
+  const handleClearAllFilters = () => {
+    // Clear parent filters safely - match initial state values
+    if (typeof setDateFilter === 'function') {
+      setDateFilter({ startDate: null, endDate: null });
+    }
+    if (typeof setStatusFilter === 'function') {
+      setStatusFilter([]);
+    }
+    if (typeof setAmountFilter === 'function') {
+      setAmountFilter(null);
+    }
+    if (typeof setOwnerFilter === 'function') {
+      setOwnerFilter([]);
+    }
+    if (typeof setRecipientsFilter === 'function') {
+      setRecipientsFilter([]);
+    }
+    // Clear local renewal date filter
+    setRenewalDateFilter(null);
+  };
 
   const toggleNewFilter = (filterId) => {
     if (selectedNewFilters.includes(filterId)) {
@@ -527,6 +553,24 @@ const FilterBar = ({
           </div>
         )}
       </div>
+
+      {/* Clear All Button - only show when filters are applied */}
+      {hasAnyFilter && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleClearAllFilters();
+          }}
+          className="flex items-center gap-1.5 px-2 py-1.5 text-13 font-graphik-regular text-secondary-light hover:text-secondary-dark transition-colors"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Clear all
+        </button>
+      )}
     </div>
   );
 };
