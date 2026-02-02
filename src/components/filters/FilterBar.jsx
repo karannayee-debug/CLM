@@ -105,13 +105,23 @@ const FilterBar = ({
     }
   };
 
-  // Additional filters that can be added via "More +"
-  const additionalFilters = [
+  // Additional filters that can be added via "More +" - Custom section
+  const customFilters = [
     { id: 'auto-renew', label: 'Auto Renew' },
     { id: 'document-type', label: 'Document Type' },
     { id: 'duration', label: 'Duration (term)' },
     { id: 'renewal-date', label: 'Renewal Date' },
   ];
+
+  // System filters
+  const systemFilters = [
+    { id: 'currency', label: 'Currency' },
+    { id: 'payment-term', label: 'Payment Term' },
+    { id: 'venue', label: 'Venue' },
+  ];
+
+  // Combined for filtering logic
+  const additionalFilters = [...customFilters, ...systemFilters];
 
   // Close filter when clicking outside
   useEffect(() => {
@@ -190,13 +200,21 @@ const FilterBar = ({
     setVisibleFilters(visibleFilters.filter(f => f !== filterId));
   };
 
-  // Get filters that aren't yet visible
-  const availableFilters = additionalFilters.filter(f => !visibleFilters.includes(f.id));
+  // Get filters that aren't yet visible - separated by section
+  const availableCustomFilters = customFilters.filter(f => !visibleFilters.includes(f.id));
+  const availableSystemFilters = systemFilters.filter(f => !visibleFilters.includes(f.id));
   
   // Filter by search
-  const filteredAvailableFilters = availableFilters.filter(f => 
+  const filteredCustomFilters = availableCustomFilters.filter(f => 
     f.label.toLowerCase().includes(filterSearch.toLowerCase())
   );
+  const filteredSystemFilters = availableSystemFilters.filter(f => 
+    f.label.toLowerCase().includes(filterSearch.toLowerCase())
+  );
+  
+  // Combined for legacy compatibility
+  const availableFilters = [...availableCustomFilters, ...availableSystemFilters];
+  const filteredAvailableFilters = [...filteredCustomFilters, ...filteredSystemFilters];
 
   const FilterButton = ({ label, isActive, hasFilter, onClick, onRemove, removable = false, children }) => (
     <div className="relative">
@@ -597,6 +615,54 @@ const FilterBar = ({
         </FilterButton>
       )}
 
+      {/* Currency Filter (placeholder) */}
+      {visibleFilters.includes('currency') && (
+        <FilterButton 
+          label="Currency" 
+          isActive={activeFilter === 'currency'}
+          hasFilter={false}
+          onClick={() => setActiveFilter(activeFilter === 'currency' ? null : 'currency')}
+        >
+          {activeFilter === 'currency' && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
+              <p className="text-13 text-secondary-light">No currencies available</p>
+            </div>
+          )}
+        </FilterButton>
+      )}
+
+      {/* Payment Term Filter (placeholder) */}
+      {visibleFilters.includes('payment-term') && (
+        <FilterButton 
+          label="Payment Term" 
+          isActive={activeFilter === 'payment-term'}
+          hasFilter={false}
+          onClick={() => setActiveFilter(activeFilter === 'payment-term' ? null : 'payment-term')}
+        >
+          {activeFilter === 'payment-term' && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
+              <p className="text-13 text-secondary-light">No payment terms available</p>
+            </div>
+          )}
+        </FilterButton>
+      )}
+
+      {/* Venue Filter (placeholder) */}
+      {visibleFilters.includes('venue') && (
+        <FilterButton 
+          label="Venue" 
+          isActive={activeFilter === 'venue'}
+          hasFilter={false}
+          onClick={() => setActiveFilter(activeFilter === 'venue' ? null : 'venue')}
+        >
+          {activeFilter === 'venue' && (
+            <div className="absolute top-full left-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-200 p-4 z-50 min-w-[200px]">
+              <p className="text-13 text-secondary-light">No venues available</p>
+            </div>
+          )}
+        </FilterButton>
+      )}
+
       {/* More Button */}
       <div className="relative" ref={moreButtonRef}>
         <button 
@@ -628,16 +694,15 @@ const FilterBar = ({
               </div>
             </div>
 
-            {/* Custom Section */}
-            <div className="py-2">
-              <div className="px-4 py-2">
-                <span className="text-11 font-graphik-semibold text-secondary-light uppercase tracking-wide">Custom</span>
-              </div>
-
-              {/* Filter Options */}
-              <div className="max-h-[240px] overflow-y-auto">
-                {filteredAvailableFilters.length > 0 ? (
-                  filteredAvailableFilters.map((filter) => (
+            {/* Filter Options */}
+            <div className="max-h-[300px] overflow-y-auto">
+              {/* Custom Section */}
+              {filteredCustomFilters.length > 0 && (
+                <div className="py-2">
+                  <div className="px-4 py-2">
+                    <span className="text-11 font-graphik-semibold text-secondary-light uppercase tracking-wide">Custom</span>
+                  </div>
+                  {filteredCustomFilters.map((filter) => (
                     <label
                       key={filter.id}
                       className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -652,13 +717,41 @@ const FilterBar = ({
                         {filter.label}
                       </span>
                     </label>
-                  ))
-                ) : (
-                  <p className="px-4 py-2 text-13 text-secondary-light">
-                    {availableFilters.length === 0 ? 'All filters are visible' : 'No matching filters'}
-                  </p>
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
+
+              {/* System Section */}
+              {filteredSystemFilters.length > 0 && (
+                <div className="py-2">
+                  <div className="px-4 py-2">
+                    <span className="text-11 font-graphik-semibold text-secondary-light uppercase tracking-wide">System</span>
+                  </div>
+                  {filteredSystemFilters.map((filter) => (
+                    <label
+                      key={filter.id}
+                      className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedNewFilters.includes(filter.id)}
+                        onChange={() => toggleNewFilter(filter.id)}
+                        className="w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary cursor-pointer"
+                      />
+                      <span className="text-14 font-graphik-regular text-secondary-dark">
+                        {filter.label}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* No filters message */}
+              {filteredCustomFilters.length === 0 && filteredSystemFilters.length === 0 && (
+                <p className="px-4 py-4 text-13 text-secondary-light">
+                  {availableFilters.length === 0 ? 'All filters are visible' : 'No matching filters'}
+                </p>
+              )}
             </div>
 
             {/* Footer Buttons */}
