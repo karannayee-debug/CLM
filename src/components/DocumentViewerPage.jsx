@@ -105,8 +105,31 @@ const CollapseIcon = ({ className }) => (
   </svg>
 );
 
+// Data/Database icon for Review data
+const DataIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none">
+    <ellipse cx="10" cy="5" rx="7" ry="3" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M3 5v10c0 1.66 3.13 3 7 3s7-1.34 7-3V5" stroke="currentColor" strokeWidth="1.5"/>
+    <path d="M3 10c0 1.66 3.13 3 7 3s7-1.34 7-3" stroke="currentColor" strokeWidth="1.5"/>
+  </svg>
+);
+
+// Chevron up icon
+const ChevronUpIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 20 20" fill="none">
+    <path d="M5 12l5-5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
 const DocumentViewerPage = ({ document, onClose }) => {
-  const [activeModal, setActiveModal] = useState(null); // 'audit', 'edit', 'convert', 'download', 'review'
+  const [activePanel, setActivePanel] = useState(null); // 'audit', 'edit', 'convert', 'download', 'review'
+  const [documentInfoExpanded, setDocumentInfoExpanded] = useState(true);
+  
+  // Editable metadata fields
+  const [contractValue, setContractValue] = useState('50,000');
+  const [duration, setDuration] = useState(document.duration ? String(document.duration) : '12');
+  const [autoRenew, setAutoRenew] = useState(document.autoRenew || false);
+  const [renewalDate, setRenewalDate] = useState('');
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -130,98 +153,193 @@ const DocumentViewerPage = ({ document, onClose }) => {
     return formatDate(date);
   };
 
-  // Modal content for different actions
-  const renderModal = () => {
-    if (!activeModal) return null;
+  // Panel configurations
+  const panelConfig = {
+    audit: {
+      icon: AuditIcon,
+      title: 'Audit Trail',
+      description: 'View the complete history of actions taken on this document.'
+    },
+    edit: {
+      icon: EditIcon,
+      title: 'Edit Document',
+      description: 'Make changes to the document content and settings.'
+    },
+    convert: {
+      icon: TemplateIcon,
+      title: 'Convert to Template',
+      description: 'Save this document as a reusable template for future use.'
+    },
+    download: {
+      icon: DownloadIcon,
+      title: 'Download PDF',
+      description: 'Download a PDF copy of this document to your device.'
+    },
+    review: {
+      icon: DataIcon,
+      title: 'Data',
+      description: 'Fill out fields to collect document information used to create reports and filter search results.'
+    }
+  };
 
-    const modalTitles = {
-      audit: 'Audit Trail',
-      edit: 'Edit Document',
-      convert: 'Convert to Template',
-      download: 'Download PDF',
-      review: 'Review Data'
-    };
+  // Render inline panel content
+  const renderPanelContent = () => {
+    if (!activePanel) return null;
 
-    const modalContent = {
-      audit: (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded">
-            <div className="w-8 h-8 rounded-full bg-[#248567] flex items-center justify-center text-white text-12 font-graphik-semibold">KN</div>
-            <div>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">Karan Nayee signed the document</p>
-              <p className="text-12 font-graphik-regular text-[#767676]">{formatDate(new Date())}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded">
-            <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-12 font-graphik-semibold">PK</div>
-            <div>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">Pavel Khrytisinich created the document</p>
-              <p className="text-12 font-graphik-regular text-[#767676]">{formatDate(document.date || new Date())}</p>
-            </div>
-          </div>
-        </div>
-      ),
-      edit: (
-        <div className="text-center py-8">
-          <EditIcon className="w-12 h-12 text-[#767676] mx-auto mb-4" />
-          <p className="text-14 font-graphik-regular text-[#767676]">Document editing is not available in this prototype.</p>
-        </div>
-      ),
-      convert: (
-        <div className="text-center py-8">
-          <TemplateIcon className="w-12 h-12 text-[#767676] mx-auto mb-4" />
-          <p className="text-14 font-graphik-regular text-[#767676] mb-4">Convert this document to a reusable template?</p>
-          <button className="px-4 py-2 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52] transition-colors">
-            Convert to Template
-          </button>
-        </div>
-      ),
-      download: (
-        <div className="text-center py-8">
-          <DownloadIcon className="w-12 h-12 text-[#767676] mx-auto mb-4" />
-          <p className="text-14 font-graphik-regular text-[#767676] mb-4">Download "{document.name}" as PDF?</p>
-          <button className="px-4 py-2 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52] transition-colors">
-            Download PDF
-          </button>
-        </div>
-      ),
-      review: (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-3 bg-gray-50 rounded">
-              <p className="text-12 font-graphik-regular text-[#767676] mb-1">Contract Value</p>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">$50,000</p>
-            </div>
-            <div className="p-3 bg-gray-50 rounded">
-              <p className="text-12 font-graphik-regular text-[#767676] mb-1">Duration</p>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">12 months</p>
-            </div>
-            <div className="p-3 bg-gray-50 rounded">
-              <p className="text-12 font-graphik-regular text-[#767676] mb-1">Auto Renew</p>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">{document.autoRenew ? 'Yes' : 'No'}</p>
-            </div>
-            <div className="p-3 bg-gray-50 rounded">
-              <p className="text-12 font-graphik-regular text-[#767676] mb-1">Renewal Date</p>
-              <p className="text-14 font-graphik-semibold text-[#2f2f2f]">{getRenewalDate()}</p>
-            </div>
-          </div>
-        </div>
-      )
-    };
+    const config = panelConfig[activePanel];
+    const IconComponent = config.icon;
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/30" onClick={() => setActiveModal(null)} />
-        <div className="relative bg-white w-[500px] max-w-[90vw] rounded-lg shadow-xl">
-          <div className="flex items-center justify-between p-4 border-b border-[#e4e4e4]">
-            <h2 className="text-16 font-graphik-semibold text-[#2f2f2f]">{modalTitles[activeModal]}</h2>
-            <button onClick={() => setActiveModal(null)} className="p-1 hover:bg-gray-100 rounded">
-              <XIcon className="w-5 h-5 text-[#767676]" />
-            </button>
+      <div className="h-full flex flex-col">
+        {/* Panel Header */}
+        <div className="flex items-center justify-between p-4 border-b border-[#e4e4e4]">
+          <div className="flex items-center gap-2">
+            <IconComponent className="w-5 h-5 text-[#2f2f2f]" />
+            <span className="text-14 font-graphik-semibold text-[#2f2f2f]">{config.title}</span>
           </div>
-          <div className="p-4">
-            {modalContent[activeModal]}
-          </div>
+          <button onClick={() => setActivePanel(null)} className="p-1 hover:bg-gray-100 rounded">
+            <XIcon className="w-5 h-5 text-[#767676]" />
+          </button>
+        </div>
+
+        {/* Panel Content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Description */}
+          <p className="text-13 font-graphik-regular text-[#767676] mb-1">
+            {config.description}
+            {activePanel === 'review' && (
+              <button className="text-[#248567] hover:underline ml-1">Learn more</button>
+            )}
+          </p>
+
+          {/* Panel-specific content */}
+          {activePanel === 'audit' && (
+            <div className="mt-4 space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-gray-50 rounded">
+                <div className="w-8 h-8 rounded-full bg-[#248567] flex items-center justify-center text-white text-12 font-graphik-semibold flex-shrink-0">KN</div>
+                <div>
+                  <p className="text-13 font-graphik-semibold text-[#2f2f2f]">Karan Nayee signed the document</p>
+                  <p className="text-12 font-graphik-regular text-[#767676]">{formatDate(new Date())}</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 p-3 bg-gray-50 rounded">
+                <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-12 font-graphik-semibold flex-shrink-0">PK</div>
+                <div>
+                  <p className="text-13 font-graphik-semibold text-[#2f2f2f]">Pavel Khrytisinich created the document</p>
+                  <p className="text-12 font-graphik-regular text-[#767676]">{formatDate(document.date || new Date())}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activePanel === 'edit' && (
+            <div className="mt-6 text-center">
+              <EditIcon className="w-10 h-10 text-[#767676] mx-auto mb-3" />
+              <p className="text-13 font-graphik-regular text-[#767676]">Document editing is not available in this prototype.</p>
+            </div>
+          )}
+
+          {activePanel === 'convert' && (
+            <div className="mt-6 text-center">
+              <TemplateIcon className="w-10 h-10 text-[#767676] mx-auto mb-3" />
+              <p className="text-13 font-graphik-regular text-[#767676] mb-4">This will create a new template based on this document.</p>
+              <button className="px-4 py-2 bg-[#248567] text-white text-13 font-graphik-semibold rounded hover:bg-[#1D6A52] transition-colors">
+                Convert to Template
+              </button>
+            </div>
+          )}
+
+          {activePanel === 'download' && (
+            <div className="mt-6 text-center">
+              <DownloadIcon className="w-10 h-10 text-[#767676] mx-auto mb-3" />
+              <p className="text-13 font-graphik-regular text-[#767676] mb-4">Download "{document.name}" as PDF</p>
+              <button className="px-4 py-2 bg-[#248567] text-white text-13 font-graphik-semibold rounded hover:bg-[#1D6A52] transition-colors">
+                Download PDF
+              </button>
+            </div>
+          )}
+
+          {activePanel === 'review' && (
+            <div className="mt-4">
+              {/* Document Info Section */}
+              <div className="border-t border-[#e4e4e4] pt-4">
+                <button 
+                  onClick={() => setDocumentInfoExpanded(!documentInfoExpanded)}
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="text-12 font-graphik-semibold text-[#2f2f2f] uppercase tracking-wider">Document Info</span>
+                  <ChevronUpIcon className={`w-5 h-5 text-[#767676] transition-transform ${documentInfoExpanded ? '' : 'rotate-180'}`} />
+                </button>
+
+                {documentInfoExpanded && (
+                  <div className="mt-3 space-y-4">
+                    {/* Contract Value - editable */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Contract Value
+                      </label>
+                      <div className="relative">
+                        <span className="text-14 font-graphik-regular text-[#767676] absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                        <input 
+                          type="text" 
+                          value={contractValue}
+                          onChange={(e) => setContractValue(e.target.value)}
+                          className="w-full pl-7 pr-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f]"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Duration - editable */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Duration
+                      </label>
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          value={duration}
+                          onChange={(e) => setDuration(e.target.value)}
+                          className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] pr-16"
+                        />
+                        <span className="text-14 font-graphik-regular text-[#767676] absolute right-3 top-1/2 -translate-y-1/2">months</span>
+                      </div>
+                    </div>
+
+                    {/* Auto Renew - dropdown */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Auto Renew
+                      </label>
+                      <div className="relative">
+                        <select 
+                          value={autoRenew ? 'yes' : 'no'}
+                          onChange={(e) => setAutoRenew(e.target.value === 'yes')}
+                          className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-white"
+                        >
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Renewal Date - editable */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Renewal Date
+                      </label>
+                      <input 
+                        type="date" 
+                        value={renewalDate}
+                        onChange={(e) => setRenewalDate(e.target.value)}
+                        className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f]"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -301,139 +419,142 @@ const DocumentViewerPage = ({ document, onClose }) => {
 
         {/* Right sidebar */}
         <div className="w-[320px] bg-white border-l border-[#e4e4e4] overflow-y-auto">
-          <div className="p-4">
-            {/* Status badge */}
-            <div className="mb-4">
-              <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#248567] text-white text-13 font-graphik-semibold rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
-                Completed
-              </span>
-            </div>
+          {activePanel ? (
+            // Show panel content
+            renderPanelContent()
+          ) : (
+            // Show default sidebar content
+            <div className="p-4">
+              {/* Status badge */}
+              <div className="mb-4">
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-[#248567] text-white text-13 font-graphik-semibold rounded-full">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                  Completed
+                </span>
+              </div>
 
-            {/* Status message */}
-            <p className="text-13 font-graphik-regular text-[#767676] mb-6">
-              It's a wrap! This document has been completed by all participants.
-            </p>
+              {/* Status message */}
+              <p className="text-13 font-graphik-regular text-[#767676] mb-6">
+                It's a wrap! This document has been completed by all participants.
+              </p>
 
-            {/* Action links */}
-            <div className="space-y-1 mb-6">
-              <button 
-                onClick={() => setActiveModal('audit')}
-                className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
-              >
-                <AuditIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-[#2f2f2f]">Audit trail</span>
-              </button>
-              <button 
-                onClick={() => setActiveModal('edit')}
-                className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
-              >
-                <EditIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-[#2f2f2f]">Edit document</span>
-              </button>
-              <button 
-                onClick={() => setActiveModal('convert')}
-                className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
-              >
-                <TemplateIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-[#2f2f2f]">Convert to template</span>
-              </button>
-              <button 
-                onClick={() => setActiveModal('download')}
-                className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
-              >
-                <DownloadIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-[#2f2f2f]">Download PDF</span>
-              </button>
-              <button 
-                onClick={() => setActiveModal('review')}
-                className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
-              >
-                <ReviewIcon className="w-5 h-5 text-[#767676]" />
-                <span className="text-14 font-graphik-regular text-[#2f2f2f]">Review data</span>
-              </button>
-            </div>
-
-            {/* Metadata */}
-            <div className="grid grid-cols-2 gap-y-4 mb-6 pt-4 border-t border-[#e4e4e4]">
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Owner</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">{document.owner || 'Pavel Khrytisinich'}</p>
-              </div>
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Created</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.date)}</p>
-              </div>
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Folder</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">All documents</p>
-              </div>
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Sent</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.sentDate || document.date)}</p>
-              </div>
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Completed</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.completedDate || document.date)}</p>
-              </div>
-              <div>
-                <p className="text-12 font-graphik-regular text-[#767676] mb-1">Renewal date</p>
-                <p className="text-13 font-graphik-regular text-[#2f2f2f]">{getRenewalDate()}</p>
-              </div>
-            </div>
-
-            {/* Recipients */}
-            <div className="pt-4 border-t border-[#e4e4e4]">
-              <p className="text-12 font-graphik-semibold text-[#767676] uppercase tracking-wider mb-3">Recipients</p>
-              
-              {/* Recipient 1 */}
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#248567] flex items-center justify-center text-white text-12 font-graphik-semibold">
-                    KN
-                  </div>
-                  <div>
-                    <p className="text-13 font-graphik-regular text-[#2f2f2f]">
-                      Karan Nayee <span className="text-[#248567]">Signed</span>
-                    </p>
-                    <p className="text-12 font-graphik-regular text-[#767676]">karan.nayee@pandadoc.com</p>
-                  </div>
-                </div>
-                <button className="p-1 hover:bg-gray-100 rounded">
-                  <MoreVerticalIcon className="w-4 h-4 text-[#767676]" />
+              {/* Action links */}
+              <div className="space-y-1 mb-6">
+                <button 
+                  onClick={() => setActivePanel('audit')}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <AuditIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-14 font-graphik-regular text-[#2f2f2f]">Audit trail</span>
+                </button>
+                <button 
+                  onClick={() => setActivePanel('edit')}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <EditIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-14 font-graphik-regular text-[#2f2f2f]">Edit document</span>
+                </button>
+                <button 
+                  onClick={() => setActivePanel('convert')}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <TemplateIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-14 font-graphik-regular text-[#2f2f2f]">Convert to template</span>
+                </button>
+                <button 
+                  onClick={() => setActivePanel('download')}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <DownloadIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-14 font-graphik-regular text-[#2f2f2f]">Download PDF</span>
+                </button>
+                <button 
+                  onClick={() => setActivePanel('review')}
+                  className="w-full flex items-center gap-3 px-2 py-2 text-left hover:bg-gray-50 rounded transition-colors"
+                >
+                  <ReviewIcon className="w-5 h-5 text-[#767676]" />
+                  <span className="text-14 font-graphik-regular text-[#2f2f2f]">Review data</span>
                 </button>
               </div>
 
-              {/* Recipient 2 */}
-              <div className="flex items-center justify-between py-2">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-12 font-graphik-semibold">
-                    <span className="text-10">👤</span>
-                  </div>
-                  <div>
-                    <p className="text-13 font-graphik-regular text-[#2f2f2f]">
-                      test <span className="text-[#767676]">CC</span>
-                    </p>
-                    <p className="text-12 font-graphik-regular text-[#767676]">1 recipient</p>
-                  </div>
+              {/* Metadata */}
+              <div className="grid grid-cols-2 gap-y-4 mb-6 pt-4 border-t border-[#e4e4e4]">
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Owner</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">{document.owner || 'Pavel Khrytisinich'}</p>
                 </div>
-                <button className="p-1 hover:bg-gray-100 rounded">
-                  <MoreVerticalIcon className="w-4 h-4 text-[#767676]" />
-                </button>
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Created</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.date)}</p>
+                </div>
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Folder</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">All documents</p>
+                </div>
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Sent</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.sentDate || document.date)}</p>
+                </div>
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Completed</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">{formatDate(document.completedDate || document.date)}</p>
+                </div>
+                <div>
+                  <p className="text-12 font-graphik-regular text-[#767676] mb-1">Renewal date</p>
+                  <p className="text-13 font-graphik-regular text-[#2f2f2f]">{getRenewalDate()}</p>
+                </div>
               </div>
 
-              {/* Manage recipients */}
-              <button className="flex items-center gap-2 mt-3 text-13 font-graphik-regular text-[#767676] hover:text-[#2f2f2f]">
-                <UsersIcon className="w-5 h-5" />
-                Manage recipients
-              </button>
+              {/* Recipients */}
+              <div className="pt-4 border-t border-[#e4e4e4]">
+                <p className="text-12 font-graphik-semibold text-[#767676] uppercase tracking-wider mb-3">Recipients</p>
+                
+                {/* Recipient 1 */}
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#248567] flex items-center justify-center text-white text-12 font-graphik-semibold">
+                      KN
+                    </div>
+                    <div>
+                      <p className="text-13 font-graphik-regular text-[#2f2f2f]">
+                        Karan Nayee <span className="text-[#248567]">Signed</span>
+                      </p>
+                      <p className="text-12 font-graphik-regular text-[#767676]">karan.nayee@pandadoc.com</p>
+                    </div>
+                  </div>
+                  <button className="p-1 hover:bg-gray-100 rounded">
+                    <MoreVerticalIcon className="w-4 h-4 text-[#767676]" />
+                  </button>
+                </div>
+
+                {/* Recipient 2 */}
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-[#6366F1] flex items-center justify-center text-white text-12 font-graphik-semibold">
+                      <span className="text-10">👤</span>
+                    </div>
+                    <div>
+                      <p className="text-13 font-graphik-regular text-[#2f2f2f]">
+                        test <span className="text-[#767676]">CC</span>
+                      </p>
+                      <p className="text-12 font-graphik-regular text-[#767676]">1 recipient</p>
+                    </div>
+                  </div>
+                  <button className="p-1 hover:bg-gray-100 rounded">
+                    <MoreVerticalIcon className="w-4 h-4 text-[#767676]" />
+                  </button>
+                </div>
+
+                {/* Manage recipients */}
+                <button className="flex items-center gap-2 mt-3 text-13 font-graphik-regular text-[#767676] hover:text-[#2f2f2f]">
+                  <UsersIcon className="w-5 h-5" />
+                  Manage recipients
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
-
-      {/* Modals */}
-      {renderModal()}
     </div>
   );
 };
