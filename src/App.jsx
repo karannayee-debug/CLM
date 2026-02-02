@@ -8,6 +8,7 @@ import ContactsContent from './components/ContactsContent';
 import GmailImportModal from './components/GmailImportModal';
 import GetStartedPage from './components/GetStartedPage';
 import BulkImportPage from './components/BulkImportPage';
+import DocumentViewerPage from './components/DocumentViewerPage';
 
 function App() {
   const [isGmailImportModalOpen, setIsGmailImportModalOpen] = useState(false);
@@ -19,6 +20,7 @@ function App() {
   const [currentFolder, setCurrentFolder] = useState(null);
   const [activePage, setActivePage] = useState('Home');
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewingDocument, setViewingDocument] = useState(null);
 
   const handleOpenGmailImport = () => {
     setIsGmailImportModalOpen(true);
@@ -84,6 +86,14 @@ function App() {
     setCurrentTab('Imported');
   };
 
+  const handleOpenDocument = (document) => {
+    setViewingDocument(document);
+  };
+
+  const handleCloseDocumentViewer = () => {
+    setViewingDocument(null);
+  };
+
   // Show Get Started Page (full page view without sidebar)
   if (showGetStartedPage) {
     return (
@@ -132,6 +142,7 @@ function App() {
               onOpenDocumentModal={handleOpenGetStarted}
               onOpenBulkImport={handleOpenBulkImport}
               searchQuery={searchQuery}
+              onOpenDocument={handleOpenDocument}
             />
           )}
           {activePage === 'Templates' && (
@@ -155,6 +166,14 @@ function App() {
         <BulkImportPage 
           onClose={handleCloseBulkImport} 
           onImportComplete={handleBulkImportComplete}
+        />
+      )}
+
+      {/* Document Viewer Page */}
+      {viewingDocument && (
+        <DocumentViewerPage 
+          document={viewingDocument}
+          onClose={handleCloseDocumentViewer}
         />
       )}
     </div>

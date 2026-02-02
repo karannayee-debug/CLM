@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import { organizeByYear, organizeByCompany, organizeByStatus } from '../data/mockGmailDocuments';
 import { FilterBar } from './filters';
 
-const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '' }) => {
+const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], importedOrganizationSettings = null, currentTab = 'All documents', searchQuery = '', onOpenDocument }) => {
   const [expandedFolders, setExpandedFolders] = useState({});
   const [selectedItems, setSelectedItems] = useState(new Set());
   
@@ -584,7 +584,11 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
     const selected = isItemSelected(doc.id);
     
     return (
-      <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+      <div 
+        key={doc.id} 
+        className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+        onClick={() => onOpenDocument && onOpenDocument(doc)}
+      >
         {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
         <div className="flex-1 min-w-0 flex items-center">
           <div className="w-12 flex justify-center" style={{ marginLeft: `${indentPadding}px` }}>
@@ -918,7 +922,11 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         {currentFolder && currentFolder.documents.filter(filterBySearch).map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
-            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+            <div 
+              key={doc.id} 
+              className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+              onClick={() => onOpenDocument && onOpenDocument(doc)}
+            >
               {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
               <div className="flex-1 min-w-0 flex items-center">
                 <div className="w-12 flex justify-center">
@@ -969,7 +977,11 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         {currentTab !== 'Imported' && !currentFolder && !autoRenewFilter && !(durationFilter.from !== '' || durationFilter.to !== '') && filteredDocuments.map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
-            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+            <div 
+              key={doc.id} 
+              className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+              onClick={() => onOpenDocument && onOpenDocument(doc)}
+            >
               {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
               <div className="flex-1 min-w-0 flex items-center">
                 <div className="w-12 flex justify-center">
@@ -1023,7 +1035,11 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
         {currentTab !== 'Imported' && !currentFolder && (autoRenewFilter || (durationFilter.from !== '' || durationFilter.to !== '')) && uniqueDocumentsForAutoRenew.filter(filterBySearch).map((doc) => {
           const selected = isItemSelected(doc.id);
           return (
-            <div key={doc.id} className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors">
+            <div 
+              key={doc.id} 
+              className="group flex items-center h-17 border-b border-gray-50 hover:bg-gray-25 transition-colors cursor-pointer"
+              onClick={() => onOpenDocument && onOpenDocument(doc)}
+            >
               {/* Document Icon (becomes checkbox on hover or when selected) + Name Column */}
               <div className="flex-1 min-w-0 flex items-center">
                 <div className="w-12 flex justify-center">
