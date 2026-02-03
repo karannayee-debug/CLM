@@ -596,6 +596,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
               type="checkbox" 
               checked={selected}
               onChange={(e) => toggleItemSelection(doc.id, e)}
+              onClick={(e) => e.stopPropagation()}
               className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`} 
             />
             <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
@@ -934,6 +935,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
                     type="checkbox" 
                     checked={selected}
                     onChange={(e) => toggleItemSelection(doc.id, e)}
+                    onClick={(e) => e.stopPropagation()}
                     className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
                   />
                   <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
@@ -989,6 +991,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
                     type="checkbox" 
                     checked={selected}
                     onChange={(e) => toggleItemSelection(doc.id, e)}
+                    onClick={(e) => e.stopPropagation()}
                     className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
                   />
                   <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
@@ -1047,6 +1050,7 @@ const DocumentsTable = ({ currentFolder, onFolderClick, importedDocuments = [], 
                     type="checkbox" 
                     checked={selected}
                     onChange={(e) => toggleItemSelection(doc.id, e)}
+                    onClick={(e) => e.stopPropagation()}
                     className={`w-4 h-4 rounded border-gray-300 text-brand-primary focus:ring-brand-primary ${selected ? 'block' : 'hidden group-hover:block'}`}
                   />
                   <DocumentPortraitIcon className={`w-6 h-6 text-secondary-light ${selected ? 'hidden' : 'block group-hover:hidden'}`} />
