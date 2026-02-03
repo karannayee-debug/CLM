@@ -142,7 +142,7 @@ const Sidebar = ({ activePage, onPageChange }) => {
             return (
               <button
                 key={index}
-                className={`nav-item ${item.active ? 'active' : ''} ${item.disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+                className={`nav-item ${item.active ? 'active' : ''} ${item.disabled ? 'cursor-not-allowed' : ''}`}
                 style={item.active ? {
                   backgroundColor: 'white',
                   boxShadow: '0px 0px 1px 0px rgba(47,47,47,0.04), 0px 1px 4px 0px rgba(47,47,47,0.12)'
@@ -150,8 +150,8 @@ const Sidebar = ({ activePage, onPageChange }) => {
                 disabled={item.disabled}
                 onClick={() => handleNavClick(item)}
               >
-                <IconComponent className={`w-5 h-5 mr-3 ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
-                <span className={`flex-1 text-left ${item.disabled ? 'text-[#9CA3AF]' : 'text-secondary-dark'}`}>
+                <IconComponent className={`w-5 h-5 mr-3 ${item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
+                <span className="flex-1 text-left text-secondary-dark">
                   {item.label}
                 </span>
                 {item.hasChevron && (
@@ -193,10 +193,10 @@ const Sidebar = ({ activePage, onPageChange }) => {
                       }
                     }}
                   >
-                    <IconComponent className={`w-5 h-5 mr-3 ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
-                    <span className={`flex-1 text-left ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-secondary-dark' : 'text-secondary-dark'}`}>{item.label}</span>
+                    <IconComponent className={`w-5 h-5 mr-3 ${item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
+                    <span className="flex-1 text-left text-secondary-dark">{item.label}</span>
                     {item.beta && (
-                      <span className={`text-[10px] font-graphik-semibold px-1.5 py-0.5 rounded ${item.disabled ? 'text-[#9CA3AF] bg-[#f5f5f5]' : 'text-[#767676] bg-[#f0f0f0]'}`}>BETA</span>
+                      <span className="text-[10px] font-graphik-semibold px-1.5 py-0.5 rounded text-[#767676] bg-[#f0f0f0]">BETA</span>
                     )}
                   </button>
                 );

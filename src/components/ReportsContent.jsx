@@ -106,6 +106,10 @@ const ReportsContent = () => {
   const [showDocDataDurationDropdown, setShowDocDataDurationDropdown] = useState(false);
   const [docDataRenewalDateFilter, setDocDataRenewalDateFilter] = useState(null);
   const [showDocDataRenewalDateDropdown, setShowDocDataRenewalDateDropdown] = useState(false);
+  const [docDataSignedDateFilter, setDocDataSignedDateFilter] = useState(null);
+  const [showDocDataSignedDateDropdown, setShowDocDataSignedDateDropdown] = useState(false);
+  const [docDataSignedDateCustom, setDocDataSignedDateCustom] = useState({ from: '', to: '' });
+  const [showSignedDateCustomPicker, setShowSignedDateCustomPicker] = useState(false);
 
   // Additional filters for More dropdown
   const docDataAdditionalFilters = [
@@ -113,6 +117,7 @@ const ReportsContent = () => {
     { id: 'document-type-extra', label: 'Document Type' },
     { id: 'duration', label: 'Duration (Term)' },
     { id: 'renewal-date', label: 'Renewal Date' },
+    { id: 'signed-date', label: 'Signed Date' },
   ];
 
   // Customize panel state
@@ -130,6 +135,7 @@ const ReportsContent = () => {
       { id: 'document-type', label: 'Document type' },
       { id: 'status', label: 'Status' },
       { id: 'created-date', label: 'Created date' },
+      { id: 'signed-date', label: 'Signed date' },
       { id: 'owner', label: 'Owner' },
     ],
     dataFields: [
@@ -154,12 +160,12 @@ const ReportsContent = () => {
 
   // Mock document data with additional fields
   const documentDataList = [
-    { id: 1, name: 'Conversion Rate Optimization Proposal', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 15, 2026', owner: 'John Smith', autoRenew: 'Yes', duration: '12 months', renewalDate: 'Jan 15, 2027', contractValue: '$50,000' },
-    { id: 2, name: 'FR M0001-452', documentType: 'Contract', status: 'Sent', createdDate: 'Jan 18, 2026', owner: 'Sarah Johnson', autoRenew: 'No', duration: '24 months', renewalDate: 'Jan 18, 2028', contractValue: '$25,000' },
-    { id: 3, name: 'FR M0001-4613', documentType: 'NDA', status: 'Viewed', createdDate: 'Jan 20, 2026', owner: 'Mike Wilson', autoRenew: 'Yes', duration: '36 months', renewalDate: 'Jan 20, 2029', contractValue: '$10,000' },
-    { id: 4, name: 'Non-Disclosure Agreement for Brilliant Moments Inc.', documentType: 'NDA', status: 'Completed', createdDate: 'Jan 22, 2026', owner: 'Emily Davis', autoRenew: 'No', duration: '12 months', renewalDate: 'Jan 22, 2027', contractValue: '$5,000' },
-    { id: 5, name: 'Equipment Purchase Proposal for Tresor Media', documentType: 'Proposal', status: 'Draft', createdDate: 'Jan 25, 2026', owner: 'John Smith', autoRenew: 'Yes', duration: '6 months', renewalDate: 'Jul 25, 2026', contractValue: '$75,000' },
-    { id: 6, name: 'Proposal for Kraftwerk Events', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 28, 2026', owner: 'Sarah Johnson', autoRenew: 'No', duration: '18 months', renewalDate: 'Jul 28, 2027', contractValue: '$35,000' },
+    { id: 1, name: 'Conversion Rate Optimization Proposal', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 15, 2026', signedDate: 'Jan 20, 2026', owner: 'John Smith', autoRenew: 'Yes', duration: '12 months', renewalDate: 'Jan 15, 2027', contractValue: '$50,000' },
+    { id: 2, name: 'FR M0001-452', documentType: 'Contract', status: 'Sent', createdDate: 'Jan 18, 2026', signedDate: '-', owner: 'Sarah Johnson', autoRenew: 'No', duration: '24 months', renewalDate: 'Jan 18, 2028', contractValue: '$25,000' },
+    { id: 3, name: 'FR M0001-4613', documentType: 'NDA', status: 'Viewed', createdDate: 'Jan 20, 2026', signedDate: '-', owner: 'Mike Wilson', autoRenew: 'Yes', duration: '36 months', renewalDate: 'Jan 20, 2029', contractValue: '$10,000' },
+    { id: 4, name: 'Non-Disclosure Agreement for Brilliant Moments Inc.', documentType: 'NDA', status: 'Completed', createdDate: 'Jan 22, 2026', signedDate: 'Jan 25, 2026', owner: 'Emily Davis', autoRenew: 'No', duration: '12 months', renewalDate: 'Jan 22, 2027', contractValue: '$5,000' },
+    { id: 5, name: 'Equipment Purchase Proposal for Tresor Media', documentType: 'Proposal', status: 'Draft', createdDate: 'Jan 25, 2026', signedDate: '-', owner: 'John Smith', autoRenew: 'Yes', duration: '6 months', renewalDate: 'Jul 25, 2026', contractValue: '$75,000' },
+    { id: 6, name: 'Proposal for Kraftwerk Events', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 28, 2026', signedDate: 'Feb 1, 2026', owner: 'Sarah Johnson', autoRenew: 'No', duration: '18 months', renewalDate: 'Jul 28, 2027', contractValue: '$35,000' },
   ];
 
   // Get column value from document
@@ -168,6 +174,7 @@ const ReportsContent = () => {
       case 'document-type': return doc.documentType;
       case 'status': return doc.status;
       case 'created-date': return doc.createdDate;
+      case 'signed-date': return doc.signedDate;
       case 'owner': return doc.owner;
       case 'auto-renew': return doc.autoRenew;
       case 'duration': return doc.duration;
@@ -459,7 +466,57 @@ const ReportsContent = () => {
   );
 
   const renderDocumentDataView = () => {
-    const sortedDocuments = [...documentDataList].sort((a, b) => {
+    // Filter documents based on signed date filter
+    const filterBySignedDate = (docs) => {
+      if (!docDataSignedDateFilter) return docs;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      return docs.filter(doc => {
+        // Skip documents without a signed date
+        if (!doc.signedDate || doc.signedDate === '-') return false;
+        
+        // Parse the signed date (format: "Jan 20, 2026")
+        const signedDate = new Date(doc.signedDate);
+        
+        // Check for custom date range (format: "Jan 15 - Jan 28")
+        if (docDataSignedDateFilter.includes(' - ')) {
+          const fromDate = new Date(docDataSignedDateCustom.from);
+          const toDate = new Date(docDataSignedDateCustom.to);
+          toDate.setHours(23, 59, 59, 999);
+          return signedDate >= fromDate && signedDate <= toDate;
+        }
+        
+        // Calculate the date range based on preset filters
+        let startDate = new Date(today);
+        switch (docDataSignedDateFilter) {
+          case 'Last 7 days':
+            startDate.setDate(today.getDate() - 7);
+            break;
+          case 'Last month':
+            startDate.setMonth(today.getMonth() - 1);
+            break;
+          case 'Last 3 months':
+            startDate.setMonth(today.getMonth() - 3);
+            break;
+          case 'Last 6 months':
+            startDate.setMonth(today.getMonth() - 6);
+            break;
+          case 'Last year':
+            startDate.setFullYear(today.getFullYear() - 1);
+            break;
+          default:
+            return true;
+        }
+        
+        return signedDate >= startDate && signedDate <= today;
+      });
+    };
+
+    const filteredDocuments = filterBySignedDate(documentDataList);
+    
+    const sortedDocuments = [...filteredDocuments].sort((a, b) => {
       if (docDataSortOrder === 'asc') {
         return a.name.localeCompare(b.name);
       }
@@ -707,6 +764,7 @@ const ReportsContent = () => {
                     setShowDocDataTimeDropdown(false);
                     setShowDocDataTypeDropdown(false);
                     setShowDocDataMoreDropdown(false);
+                    setShowDocDataSignedDateDropdown(false);
                   }}
                   className={`flex items-center gap-2 px-3 py-2 border rounded-md text-14 font-graphik-regular hover:border-[#248567] ${
                     docDataRenewalDateFilter ? 'bg-[#248567]/10 border-[#248567] text-[#248567]' : 'bg-white border-[#e4e4e4] text-[#2f2f2f]'
@@ -730,6 +788,93 @@ const ReportsContent = () => {
                           {option}
                         </button>
                       ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Signed Date Filter (when visible) */}
+            {docDataVisibleFilters.includes('signed-date') && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowDocDataSignedDateDropdown(!showDocDataSignedDateDropdown);
+                    setShowDocDataCreatedDropdown(false);
+                    setShowDocDataTimeDropdown(false);
+                    setShowDocDataTypeDropdown(false);
+                    setShowDocDataMoreDropdown(false);
+                    setShowDocDataRenewalDateDropdown(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 border rounded-md text-14 font-graphik-regular hover:border-[#248567] ${
+                    docDataSignedDateFilter ? 'bg-[#248567]/10 border-[#248567] text-[#248567]' : 'bg-white border-[#e4e4e4] text-[#2f2f2f]'
+                  }`}
+                >
+                  {docDataSignedDateFilter || 'Signed Date'}
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                {showDocDataSignedDateDropdown && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[280px]">
+                    <div className="py-1">
+                      {['Last 7 days', 'Last month', 'Last 3 months', 'Last 6 months', 'Last year'].map((option) => (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setDocDataSignedDateFilter(option);
+                            setShowDocDataSignedDateDropdown(false);
+                            setShowSignedDateCustomPicker(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataSignedDateFilter === option ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                      {/* Custom Date Range Option */}
+                      <button
+                        onClick={() => setShowSignedDateCustomPicker(!showSignedDateCustomPicker)}
+                        className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 flex items-center justify-between ${showSignedDateCustomPicker ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                      >
+                        Custom range
+                        <ChevronDownIcon className={`w-4 h-4 transition-transform ${showSignedDateCustomPicker ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showSignedDateCustomPicker && (
+                        <div className="px-4 py-3 border-t border-[#e4e4e4]">
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="flex-1">
+                              <label className="block text-11 font-graphik-regular text-[#767676] mb-1">From</label>
+                              <input
+                                type="date"
+                                value={docDataSignedDateCustom.from}
+                                onChange={(e) => setDocDataSignedDateCustom(prev => ({ ...prev, from: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <label className="block text-11 font-graphik-regular text-[#767676] mb-1">To</label>
+                              <input
+                                type="date"
+                                value={docDataSignedDateCustom.to}
+                                onChange={(e) => setDocDataSignedDateCustom(prev => ({ ...prev, to: e.target.value }))}
+                                className="w-full px-2 py-1.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular"
+                              />
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (docDataSignedDateCustom.from && docDataSignedDateCustom.to) {
+                                const fromDate = new Date(docDataSignedDateCustom.from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                                const toDate = new Date(docDataSignedDateCustom.to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                                setDocDataSignedDateFilter(`${fromDate} - ${toDate}`);
+                              }
+                              setShowDocDataSignedDateDropdown(false);
+                              setShowSignedDateCustomPicker(false);
+                            }}
+                            className="w-full px-4 py-2 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52]"
+                          >
+                            Apply
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
