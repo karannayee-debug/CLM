@@ -111,6 +111,10 @@ const ReportsContent = () => {
   const [docDataSignedDateCustom, setDocDataSignedDateCustom] = useState({ from: '', to: '' });
   const [showSignedDateCustomPicker, setShowSignedDateCustomPicker] = useState(false);
   const [showDocDataOptionsMenu, setShowDocDataOptionsMenu] = useState(false);
+  const [showCreateReportModal, setShowCreateReportModal] = useState(false);
+  const [newReportName, setNewReportName] = useState('');
+  const [newReportDescription, setNewReportDescription] = useState('');
+  const [savedReports, setSavedReports] = useState([]);
 
   // Additional filters for More dropdown
   const docDataAdditionalFilters = [
@@ -466,7 +470,7 @@ const ReportsContent = () => {
     </>
   );
 
-  const renderDocumentDataView = () => {
+  const renderDocumentDataView = (customTitle = null) => {
     // Filter documents based on signed date filter
     const filterBySignedDate = (docs) => {
       if (!docDataSignedDateFilter) return docs;
@@ -528,7 +532,7 @@ const ReportsContent = () => {
       <>
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
-          <h1 className="text-24 font-graphik-semibold text-[#2f2f2f]">Document data</h1>
+          <h1 className="text-24 font-graphik-semibold text-[#2f2f2f]">{customTitle || 'Document data'}</h1>
           <div className="relative">
             <button 
               onClick={() => setShowDocDataOptionsMenu(!showDocDataOptionsMenu)}
@@ -545,7 +549,7 @@ const ReportsContent = () => {
                 <div className="py-2">
                   <button
                     onClick={() => {
-                      // Placeholder action
+                      setShowCreateReportModal(true);
                       setShowDocDataOptionsMenu(false);
                     }}
                     className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-[#2f2f2f] hover:bg-gray-50 flex items-center gap-2"
@@ -566,23 +570,6 @@ const ReportsContent = () => {
                       <path d="M4 13v3a1 1 0 001 1h10a1 1 0 001-1v-3M10 3v10m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Export CSV
-                  </button>
-                </div>
-                <div className="border-t border-[#e4e4e4] py-2">
-                  <button
-                    onClick={() => {
-                      // Clear all filters
-                      setDocDataSignedDateFilter(null);
-                      setDocDataRenewalDateFilter(null);
-                      setDocDataAutoRenewFilter(null);
-                      setDocDataDurationFilter({ from: '', to: '' });
-                      setDocDataVisibleFilters([]);
-                      setVisibleColumns(['name']);
-                      setShowDocDataOptionsMenu(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-[#248567] hover:bg-gray-50"
-                  >
-                    Clear all
                   </button>
                 </div>
               </div>
@@ -1167,6 +1154,14 @@ const ReportsContent = () => {
   );
 
   const renderMainContent = () => {
+    // Check if it's a saved report
+    if (activeView.startsWith('saved-report-')) {
+      const report = savedReports.find(r => r.id === activeView);
+      if (report) {
+        return renderDocumentDataView(report.name);
+      }
+    }
+    
     switch (activeView) {
       case 'workflow-overview':
         return renderWorkflowOverview();
@@ -1337,7 +1332,25 @@ const ReportsContent = () => {
                   </button>
                 );
               })}
-              <button className="w-full flex items-center gap-3 px-4 py-2.5 text-14 font-graphik-regular text-[#767676] hover:bg-gray-50">
+              {/* Saved Reports */}
+              {savedReports.map((report) => (
+                <button
+                  key={report.id}
+                  onClick={() => setActiveView(report.id)}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 text-14 font-graphik-regular transition-colors ${
+                    activeView === report.id
+                      ? 'bg-[#248567]/10 text-[#248567] border-l-2 border-[#248567]'
+                      : 'text-[#2f2f2f] hover:bg-gray-50'
+                  }`}
+                >
+                  <DataIcon className={`w-5 h-5 ${activeView === report.id ? 'text-[#248567]' : 'text-[#767676]'}`} />
+                  {report.name}
+                </button>
+              ))}
+              <button 
+                onClick={() => setShowCreateReportModal(true)}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-14 font-graphik-regular text-[#767676] hover:bg-gray-50"
+              >
                 <PlusIcon className="w-5 h-5" />
                 Create new report
               </button>
@@ -1345,6 +1358,105 @@ const ReportsContent = () => {
           )}
         </div>
       </div>
+
+      {/* Create Report Modal */}
+      {showCreateReportModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl w-[500px]">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#e4e4e4]">
+              <h2 className="text-18 font-graphik-semibold text-[#2f2f2f]">Create report</h2>
+              <button 
+                onClick={() => {
+                  setShowCreateReportModal(false);
+                  setNewReportName('');
+                  setNewReportDescription('');
+                }}
+                className="p-1 hover:bg-gray-100 rounded"
+              >
+                <svg className="w-5 h-5 text-[#767676]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 6l8 8M14 6l-8 8" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-6 py-5">
+              {/* Name Field */}
+              <div className="mb-5">
+                <label className="block text-11 font-graphik-semibold text-[#2f2f2f] uppercase tracking-wider mb-2">
+                  Name<span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={newReportName}
+                  onChange={(e) => setNewReportName(e.target.value.slice(0, 50))}
+                  placeholder="Enter report name"
+                  className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] focus:outline-none focus:border-[#248567]"
+                />
+                <div className="text-right text-12 font-graphik-regular text-[#767676] mt-1">
+                  {newReportName.length} / 50
+                </div>
+              </div>
+
+              {/* Description Field */}
+              <div>
+                <label className="block text-11 font-graphik-semibold text-[#767676] uppercase tracking-wider mb-2">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  value={newReportDescription}
+                  onChange={(e) => setNewReportDescription(e.target.value.slice(0, 100))}
+                  placeholder="Enter description"
+                  className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] focus:outline-none focus:border-[#248567]"
+                />
+                <div className="text-right text-12 font-graphik-regular text-[#767676] mt-1">
+                  {newReportDescription.length} / 100
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center justify-between px-6 py-4 border-t border-[#e4e4e4]">
+              <button
+                onClick={() => {
+                  setShowCreateReportModal(false);
+                  setNewReportName('');
+                  setNewReportDescription('');
+                }}
+                className="px-4 py-2 text-14 font-graphik-semibold text-[#2f2f2f] bg-[#f0f0f0] rounded hover:bg-[#e4e4e4]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (newReportName.trim()) {
+                    const newReport = {
+                      id: `saved-report-${Date.now()}`,
+                      name: newReportName.trim(),
+                      description: newReportDescription.trim(),
+                    };
+                    setSavedReports([...savedReports, newReport]);
+                    setShowCreateReportModal(false);
+                    setNewReportName('');
+                    setNewReportDescription('');
+                    setActiveView(newReport.id);
+                  }
+                }}
+                disabled={!newReportName.trim()}
+                className={`px-4 py-2 text-14 font-graphik-semibold text-white rounded ${
+                  newReportName.trim() 
+                    ? 'bg-[#248567] hover:bg-[#1D6A52]' 
+                    : 'bg-[#248567]/50 cursor-not-allowed'
+                }`}
+              >
+                Save report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto bg-[#f9f9f9]">
