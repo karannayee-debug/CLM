@@ -110,6 +110,7 @@ const ReportsContent = () => {
   const [showDocDataSignedDateDropdown, setShowDocDataSignedDateDropdown] = useState(false);
   const [docDataSignedDateCustom, setDocDataSignedDateCustom] = useState({ from: '', to: '' });
   const [showSignedDateCustomPicker, setShowSignedDateCustomPicker] = useState(false);
+  const [showDocDataOptionsMenu, setShowDocDataOptionsMenu] = useState(false);
 
   // Additional filters for More dropdown
   const docDataAdditionalFilters = [
@@ -528,13 +529,65 @@ const ReportsContent = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-2">
           <h1 className="text-24 font-graphik-semibold text-[#2f2f2f]">Document data</h1>
-          <button className="p-2 hover:bg-gray-100 rounded">
-            <svg className="w-5 h-5 text-[#767676]" viewBox="0 0 20 20" fill="currentColor">
-              <circle cx="10" cy="4" r="1.5" />
-              <circle cx="10" cy="10" r="1.5" />
-              <circle cx="10" cy="16" r="1.5" />
-            </svg>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => setShowDocDataOptionsMenu(!showDocDataOptionsMenu)}
+              className="p-2 hover:bg-gray-100 rounded"
+            >
+              <svg className="w-5 h-5 text-[#767676]" viewBox="0 0 20 20" fill="currentColor">
+                <circle cx="10" cy="4" r="1.5" />
+                <circle cx="10" cy="10" r="1.5" />
+                <circle cx="10" cy="16" r="1.5" />
+              </svg>
+            </button>
+            {showDocDataOptionsMenu && (
+              <div className="absolute top-full right-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[140px]">
+                <div className="py-2">
+                  <button
+                    onClick={() => {
+                      // Placeholder action
+                      setShowDocDataOptionsMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-[#2f2f2f] hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4 text-[#767676]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M10 4v6m0 0v6m0-6h6m-6 0H4" strokeLinecap="round" />
+                    </svg>
+                    Save as new
+                  </button>
+                  <button
+                    onClick={() => {
+                      // Placeholder action
+                      setShowDocDataOptionsMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-[#2f2f2f] hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4 text-[#767676]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M4 13v3a1 1 0 001 1h10a1 1 0 001-1v-3M10 3v10m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    Export CSV
+                  </button>
+                </div>
+                <div className="border-t border-[#e4e4e4] py-2">
+                  <button
+                    onClick={() => {
+                      // Clear all filters
+                      setDocDataSignedDateFilter(null);
+                      setDocDataRenewalDateFilter(null);
+                      setDocDataAutoRenewFilter(null);
+                      setDocDataDurationFilter({ from: '', to: '' });
+                      setDocDataVisibleFilters([]);
+                      setVisibleColumns(['name']);
+                      setShowDocDataOptionsMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-14 font-graphik-regular text-[#248567] hover:bg-gray-50"
+                  >
+                    Clear all
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         <p className="text-14 font-graphik-regular text-[#767676] mb-6">
           This report shows the list of documents in the workspace and metadata values per each document.
