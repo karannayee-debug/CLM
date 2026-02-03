@@ -89,6 +89,101 @@ const ReportsContent = () => {
     documentData: true
   });
 
+  // Document Data view state
+  const [docDataCreatedFilter, setDocDataCreatedFilter] = useState('created');
+  const [showDocDataCreatedDropdown, setShowDocDataCreatedDropdown] = useState(false);
+  const [docDataTimeFilter, setDocDataTimeFilter] = useState('any');
+  const [showDocDataTimeDropdown, setShowDocDataTimeDropdown] = useState(false);
+  const [docDataTypeFilter, setDocDataTypeFilter] = useState('all');
+  const [showDocDataTypeDropdown, setShowDocDataTypeDropdown] = useState(false);
+  const [docDataIncludeDeleted, setDocDataIncludeDeleted] = useState(false);
+  const [docDataSortOrder, setDocDataSortOrder] = useState('asc');
+  const [showDocDataMoreDropdown, setShowDocDataMoreDropdown] = useState(false);
+  const [docDataVisibleFilters, setDocDataVisibleFilters] = useState([]);
+  const [docDataAutoRenewFilter, setDocDataAutoRenewFilter] = useState(null);
+  const [showDocDataAutoRenewDropdown, setShowDocDataAutoRenewDropdown] = useState(false);
+  const [docDataDurationFilter, setDocDataDurationFilter] = useState({ from: '', to: '' });
+  const [showDocDataDurationDropdown, setShowDocDataDurationDropdown] = useState(false);
+  const [docDataRenewalDateFilter, setDocDataRenewalDateFilter] = useState(null);
+  const [showDocDataRenewalDateDropdown, setShowDocDataRenewalDateDropdown] = useState(false);
+
+  // Additional filters for More dropdown
+  const docDataAdditionalFilters = [
+    { id: 'auto-renew', label: 'Auto Renew' },
+    { id: 'document-type-extra', label: 'Document Type' },
+    { id: 'duration', label: 'Duration (Term)' },
+    { id: 'renewal-date', label: 'Renewal Date' },
+  ];
+
+  // Customize panel state
+  const [showCustomizePanel, setShowCustomizePanel] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState(['name']);
+  const [columnSearch, setColumnSearch] = useState('');
+  const [expandedColumnSections, setExpandedColumnSections] = useState({
+    documentData: true,
+    dataFields: true
+  });
+
+  // Available columns for customization
+  const availableColumns = {
+    documentData: [
+      { id: 'document-type', label: 'Document type' },
+      { id: 'status', label: 'Status' },
+      { id: 'created-date', label: 'Created date' },
+      { id: 'owner', label: 'Owner' },
+    ],
+    dataFields: [
+      { id: 'auto-renew', label: 'Auto Renew' },
+      { id: 'duration', label: 'Duration (Term)' },
+      { id: 'renewal-date', label: 'Renewal Date' },
+      { id: 'contract-value', label: 'Contract Value' },
+    ]
+  };
+
+  const toggleColumn = (columnId) => {
+    if (visibleColumns.includes(columnId)) {
+      setVisibleColumns(visibleColumns.filter(c => c !== columnId));
+    } else {
+      setVisibleColumns([...visibleColumns, columnId]);
+    }
+  };
+
+  const clearAllColumns = () => {
+    setVisibleColumns(['name']);
+  };
+
+  // Mock document data with additional fields
+  const documentDataList = [
+    { id: 1, name: 'Conversion Rate Optimization Proposal', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 15, 2026', owner: 'John Smith', autoRenew: 'Yes', duration: '12 months', renewalDate: 'Jan 15, 2027', contractValue: '$50,000' },
+    { id: 2, name: 'FR M0001-452', documentType: 'Contract', status: 'Sent', createdDate: 'Jan 18, 2026', owner: 'Sarah Johnson', autoRenew: 'No', duration: '24 months', renewalDate: 'Jan 18, 2028', contractValue: '$25,000' },
+    { id: 3, name: 'FR M0001-4613', documentType: 'NDA', status: 'Viewed', createdDate: 'Jan 20, 2026', owner: 'Mike Wilson', autoRenew: 'Yes', duration: '36 months', renewalDate: 'Jan 20, 2029', contractValue: '$10,000' },
+    { id: 4, name: 'Non-Disclosure Agreement for Brilliant Moments Inc.', documentType: 'NDA', status: 'Completed', createdDate: 'Jan 22, 2026', owner: 'Emily Davis', autoRenew: 'No', duration: '12 months', renewalDate: 'Jan 22, 2027', contractValue: '$5,000' },
+    { id: 5, name: 'Equipment Purchase Proposal for Tresor Media', documentType: 'Proposal', status: 'Draft', createdDate: 'Jan 25, 2026', owner: 'John Smith', autoRenew: 'Yes', duration: '6 months', renewalDate: 'Jul 25, 2026', contractValue: '$75,000' },
+    { id: 6, name: 'Proposal for Kraftwerk Events', documentType: 'Proposal', status: 'Completed', createdDate: 'Jan 28, 2026', owner: 'Sarah Johnson', autoRenew: 'No', duration: '18 months', renewalDate: 'Jul 28, 2027', contractValue: '$35,000' },
+  ];
+
+  // Get column value from document
+  const getColumnValue = (doc, columnId) => {
+    switch (columnId) {
+      case 'document-type': return doc.documentType;
+      case 'status': return doc.status;
+      case 'created-date': return doc.createdDate;
+      case 'owner': return doc.owner;
+      case 'auto-renew': return doc.autoRenew;
+      case 'duration': return doc.duration;
+      case 'renewal-date': return doc.renewalDate;
+      case 'contract-value': return doc.contractValue;
+      default: return '';
+    }
+  };
+
+  // Get column label
+  const getColumnLabel = (columnId) => {
+    const allColumns = [...availableColumns.documentData, ...availableColumns.dataFields];
+    const column = allColumns.find(c => c.id === columnId);
+    return column ? column.label : columnId;
+  };
+
   // Mock data for charts
   const documentProgressData = [
     { date: '3 Jan', created: 25, sent: 20, viewed: 15, completed: 10 },
@@ -363,6 +458,506 @@ const ReportsContent = () => {
     </>
   );
 
+  const renderDocumentDataView = () => {
+    const sortedDocuments = [...documentDataList].sort((a, b) => {
+      if (docDataSortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      }
+      return b.name.localeCompare(a.name);
+    });
+
+    return (
+      <>
+        {/* Header */}
+        <div className="flex items-center justify-between mb-2">
+          <h1 className="text-24 font-graphik-semibold text-[#2f2f2f]">Document data</h1>
+          <button className="p-2 hover:bg-gray-100 rounded">
+            <svg className="w-5 h-5 text-[#767676]" viewBox="0 0 20 20" fill="currentColor">
+              <circle cx="10" cy="4" r="1.5" />
+              <circle cx="10" cy="10" r="1.5" />
+              <circle cx="10" cy="16" r="1.5" />
+            </svg>
+          </button>
+        </div>
+        <p className="text-14 font-graphik-regular text-[#767676] mb-6">
+          This report shows the list of documents in the workspace and metadata values per each document.
+        </p>
+
+        {/* Filters */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            {/* Created Filter */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowDocDataCreatedDropdown(!showDocDataCreatedDropdown);
+                  setShowDocDataTimeDropdown(false);
+                  setShowDocDataTypeDropdown(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-[#e4e4e4] rounded-md text-14 font-graphik-regular text-[#2f2f2f] hover:border-[#248567]"
+              >
+                {docDataCreatedFilter === 'created' ? 'Created' : docDataCreatedFilter === 'modified' ? 'Modified' : 'Sent'}
+                <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
+              </button>
+              {showDocDataCreatedDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[150px]">
+                  <div className="py-1">
+                    {['created', 'modified', 'sent'].map((option) => (
+                      <button
+                        key={option}
+                        onClick={() => {
+                          setDocDataCreatedFilter(option);
+                          setShowDocDataCreatedDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 capitalize ${docDataCreatedFilter === option ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Any Time Filter */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowDocDataTimeDropdown(!showDocDataTimeDropdown);
+                  setShowDocDataCreatedDropdown(false);
+                  setShowDocDataTypeDropdown(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-[#e4e4e4] rounded-md text-14 font-graphik-regular text-[#2f2f2f] hover:border-[#248567]"
+              >
+                {docDataTimeFilter === 'any' ? 'Any time' : docDataTimeFilter === 'today' ? 'Today' : docDataTimeFilter === 'week' ? 'This week' : docDataTimeFilter === 'month' ? 'This month' : 'This year'}
+                <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
+              </button>
+              {showDocDataTimeDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[150px]">
+                  <div className="py-1">
+                    {[
+                      { value: 'any', label: 'Any time' },
+                      { value: 'today', label: 'Today' },
+                      { value: 'week', label: 'This week' },
+                      { value: 'month', label: 'This month' },
+                      { value: 'year', label: 'This year' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setDocDataTimeFilter(option.value);
+                          setShowDocDataTimeDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataTimeFilter === option.value ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Document Type Filter */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowDocDataTypeDropdown(!showDocDataTypeDropdown);
+                  setShowDocDataCreatedDropdown(false);
+                  setShowDocDataTimeDropdown(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-[#e4e4e4] rounded-md text-14 font-graphik-regular text-[#2f2f2f] hover:border-[#248567]"
+              >
+                {docDataTypeFilter === 'all' ? 'Document type' : docDataTypeFilter}
+                <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
+              </button>
+              {showDocDataTypeDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[180px]">
+                  <div className="py-1">
+                    {[
+                      { value: 'all', label: 'All types' },
+                      { value: 'proposal', label: 'Proposal' },
+                      { value: 'contract', label: 'Contract' },
+                      { value: 'nda', label: 'NDA' },
+                      { value: 'invoice', label: 'Invoice' },
+                    ].map((option) => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setDocDataTypeFilter(option.value);
+                          setShowDocDataTypeDropdown(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataTypeFilter === option.value ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Auto Renew Filter (when visible) */}
+            {docDataVisibleFilters.includes('auto-renew') && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowDocDataAutoRenewDropdown(!showDocDataAutoRenewDropdown);
+                    setShowDocDataCreatedDropdown(false);
+                    setShowDocDataTimeDropdown(false);
+                    setShowDocDataTypeDropdown(false);
+                    setShowDocDataMoreDropdown(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 border rounded-md text-14 font-graphik-regular hover:border-[#248567] ${
+                    docDataAutoRenewFilter ? 'bg-[#248567]/10 border-[#248567] text-[#248567]' : 'bg-white border-[#e4e4e4] text-[#2f2f2f]'
+                  }`}
+                >
+                  {docDataAutoRenewFilter ? `Auto Renew: ${docDataAutoRenewFilter}` : 'Auto Renew'}
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                {showDocDataAutoRenewDropdown && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[150px]">
+                    <div className="py-1">
+                      {['Yes', 'No'].map((option) => (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setDocDataAutoRenewFilter(option);
+                            setShowDocDataAutoRenewDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataAutoRenewFilter === option ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Duration (Term) Filter (when visible) */}
+            {docDataVisibleFilters.includes('duration') && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowDocDataDurationDropdown(!showDocDataDurationDropdown);
+                    setShowDocDataCreatedDropdown(false);
+                    setShowDocDataTimeDropdown(false);
+                    setShowDocDataTypeDropdown(false);
+                    setShowDocDataMoreDropdown(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 border rounded-md text-14 font-graphik-regular hover:border-[#248567] ${
+                    docDataDurationFilter.from || docDataDurationFilter.to ? 'bg-[#248567]/10 border-[#248567] text-[#248567]' : 'bg-white border-[#e4e4e4] text-[#2f2f2f]'
+                  }`}
+                >
+                  {docDataDurationFilter.from || docDataDurationFilter.to 
+                    ? `Term: ${docDataDurationFilter.from || 'Any'} — ${docDataDurationFilter.to || 'Any'} months` 
+                    : 'Duration (Term)'}
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                {showDocDataDurationDropdown && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[280px] p-4">
+                    <div className="flex gap-4 mb-4">
+                      <div className="flex-1">
+                        <label className="text-11 font-graphik-regular text-[#767676] uppercase block mb-1">From</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={docDataDurationFilter.from}
+                            onChange={(e) => setDocDataDurationFilter(prev => ({ ...prev, from: e.target.value }))}
+                            placeholder="Any"
+                            className="w-16 px-2 py-1.5 border border-[#e4e4e4] rounded text-14"
+                          />
+                          <span className="text-14 text-[#767676]">months</span>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-11 font-graphik-regular text-[#767676] uppercase block mb-1">To</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={docDataDurationFilter.to}
+                            onChange={(e) => setDocDataDurationFilter(prev => ({ ...prev, to: e.target.value }))}
+                            placeholder="Any"
+                            className="w-16 px-2 py-1.5 border border-[#e4e4e4] rounded text-14"
+                          />
+                          <span className="text-14 text-[#767676]">months</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setShowDocDataDurationDropdown(false)}
+                      className="w-full px-4 py-2 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52]"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Renewal Date Filter (when visible) */}
+            {docDataVisibleFilters.includes('renewal-date') && (
+              <div className="relative">
+                <button
+                  onClick={() => {
+                    setShowDocDataRenewalDateDropdown(!showDocDataRenewalDateDropdown);
+                    setShowDocDataCreatedDropdown(false);
+                    setShowDocDataTimeDropdown(false);
+                    setShowDocDataTypeDropdown(false);
+                    setShowDocDataMoreDropdown(false);
+                  }}
+                  className={`flex items-center gap-2 px-3 py-2 border rounded-md text-14 font-graphik-regular hover:border-[#248567] ${
+                    docDataRenewalDateFilter ? 'bg-[#248567]/10 border-[#248567] text-[#248567]' : 'bg-white border-[#e4e4e4] text-[#2f2f2f]'
+                  }`}
+                >
+                  {docDataRenewalDateFilter || 'Renewal Date'}
+                  <ChevronDownIcon className="w-4 h-4" />
+                </button>
+                {showDocDataRenewalDateDropdown && (
+                  <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[180px]">
+                    <div className="py-1">
+                      {['Next 7 days', 'Next month', 'Next 3 months', 'Next 6 months', 'Next year'].map((option) => (
+                        <button
+                          key={option}
+                          onClick={() => {
+                            setDocDataRenewalDateFilter(option);
+                            setShowDocDataRenewalDateDropdown(false);
+                          }}
+                          className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataRenewalDateFilter === option ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                        >
+                          {option}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* More Button with Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => {
+                  setShowDocDataMoreDropdown(!showDocDataMoreDropdown);
+                  setShowDocDataCreatedDropdown(false);
+                  setShowDocDataTimeDropdown(false);
+                  setShowDocDataTypeDropdown(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-[#e4e4e4] rounded-md text-14 font-graphik-regular text-[#2f2f2f] hover:border-[#248567]"
+              >
+                <svg className="w-4 h-4 text-[#767676]" viewBox="0 0 20 20" fill="currentColor">
+                  <circle cx="4" cy="10" r="1.5" />
+                  <circle cx="10" cy="10" r="1.5" />
+                  <circle cx="16" cy="10" r="1.5" />
+                </svg>
+                More
+              </button>
+              {showDocDataMoreDropdown && (
+                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[200px]">
+                  <div className="py-2">
+                    {docDataAdditionalFilters
+                      .filter(f => !docDataVisibleFilters.includes(f.id))
+                      .map((filter) => (
+                        <button
+                          key={filter.id}
+                          onClick={() => {
+                            setDocDataVisibleFilters(prev => [...prev, filter.id]);
+                            setShowDocDataMoreDropdown(false);
+                          }}
+                          className="w-full text-left px-4 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] hover:bg-gray-50"
+                        >
+                          {filter.label}
+                        </button>
+                      ))}
+                    {docDataAdditionalFilters.filter(f => !docDataVisibleFilters.includes(f.id)).length === 0 && (
+                      <p className="px-4 py-2 text-13 text-[#767676]">All filters are visible</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right side controls */}
+          <div className="flex items-center gap-4">
+            {/* Include Deleted Toggle */}
+            <div className="flex items-center gap-2">
+              <span className="text-14 font-graphik-regular text-[#2f2f2f]">Include deleted documents</span>
+              <button
+                onClick={() => setDocDataIncludeDeleted(!docDataIncludeDeleted)}
+                className={`relative w-11 h-6 rounded-full transition-colors ${docDataIncludeDeleted ? 'bg-[#248567]' : 'bg-gray-300'}`}
+              >
+                <span className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${docDataIncludeDeleted ? 'left-6' : 'left-1'}`} />
+              </button>
+            </div>
+
+            {/* Customize Button */}
+            <button 
+              onClick={() => setShowCustomizePanel(!showCustomizePanel)}
+              className={`flex items-center gap-2 px-3 py-2 text-14 font-graphik-regular rounded-md ${showCustomizePanel ? 'bg-gray-200 text-[#2f2f2f]' : 'text-[#2f2f2f] hover:bg-gray-100'}`}
+            >
+              <svg className="w-5 h-5 text-[#767676]" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="2" y="3" width="7" height="14" rx="1" />
+                <rect x="11" y="3" width="7" height="14" rx="1" />
+              </svg>
+              Customize
+            </button>
+          </div>
+        </div>
+
+        {/* Content with optional Customize Panel */}
+        <div className="flex gap-6">
+          {/* Table with horizontal scroll */}
+          <div className={`bg-white border border-[#e4e4e4] rounded-lg overflow-hidden ${showCustomizePanel ? 'flex-1 min-w-0' : 'w-full'}`}>
+            <div className="overflow-x-auto">
+              {/* Table Header */}
+              <div className="flex border-b border-[#e4e4e4] min-w-max">
+                <button 
+                  onClick={() => setDocDataSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                  className="flex items-center gap-2 px-6 py-4 text-14 font-graphik-semibold text-[#2f2f2f] hover:bg-gray-50 text-left w-[300px] flex-shrink-0"
+                >
+                  Document name
+                  <svg className={`w-4 h-4 text-[#767676] transition-transform ${docDataSortOrder === 'desc' ? 'rotate-180' : ''}`} viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M10 4v12m0-12l-4 4m4-4l4 4" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+                {visibleColumns.filter(c => c !== 'name').map((columnId) => (
+                  <div 
+                    key={columnId}
+                    className="px-6 py-4 text-14 font-graphik-semibold text-[#2f2f2f] w-[150px] flex-shrink-0 border-l border-[#e4e4e4]"
+                  >
+                    {getColumnLabel(columnId)}
+                  </div>
+                ))}
+              </div>
+
+              {/* Table Body */}
+              <div>
+                {sortedDocuments.map((doc, index) => (
+                  <div 
+                    key={doc.id}
+                    className={`flex border-b border-[#e4e4e4] last:border-b-0 hover:bg-gray-50 min-w-max ${index % 2 === 1 ? 'bg-[#fafafa]' : 'bg-white'}`}
+                  >
+                    <div className="px-6 py-4 w-[300px] flex-shrink-0">
+                      <span className="text-14 font-graphik-regular text-[#2f2f2f]">
+                        {doc.name}
+                      </span>
+                    </div>
+                    {visibleColumns.filter(c => c !== 'name').map((columnId) => (
+                      <div 
+                        key={columnId}
+                        className="px-6 py-4 w-[150px] flex-shrink-0 border-l border-[#e4e4e4]"
+                      >
+                        <span className="text-14 font-graphik-regular text-[#2f2f2f]">
+                          {getColumnValue(doc, columnId)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Customize Panel */}
+          {showCustomizePanel && (
+            <div className="w-[280px] flex-shrink-0">
+              {/* Panel Header */}
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-16 font-graphik-semibold text-[#2f2f2f]">Columns</h3>
+                <button 
+                  onClick={clearAllColumns}
+                  className="text-14 font-graphik-regular text-[#248567] hover:underline"
+                >
+                  Clear all
+                </button>
+              </div>
+
+              {/* Document Data Section */}
+              <div className="mb-4">
+                <button
+                  onClick={() => setExpandedColumnSections(prev => ({ ...prev, documentData: !prev.documentData }))}
+                  className="w-full flex items-center justify-between py-2 text-14 font-graphik-semibold text-[#2f2f2f]"
+                >
+                  Document data
+                  {expandedColumnSections.documentData ? (
+                    <ChevronUpIcon className="w-4 h-4 text-[#767676]" />
+                  ) : (
+                    <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
+                  )}
+                </button>
+                {expandedColumnSections.documentData && (
+                  <div className="mt-2 space-y-2">
+                    {availableColumns.documentData.map((column) => (
+                      <label key={column.id} className="flex items-center gap-3 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={visibleColumns.includes(column.id)}
+                          onChange={() => toggleColumn(column.id)}
+                          className="w-4 h-4 rounded border-gray-300 text-[#248567] focus:ring-[#248567]"
+                        />
+                        <span className="text-14 font-graphik-regular text-[#2f2f2f]">{column.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Data Fields Section */}
+              <div className="border-t border-[#e4e4e4] pt-4">
+                <button
+                  onClick={() => setExpandedColumnSections(prev => ({ ...prev, dataFields: !prev.dataFields }))}
+                  className="w-full flex items-center justify-between py-2 text-14 font-graphik-semibold text-[#2f2f2f]"
+                >
+                  Data fields
+                  {expandedColumnSections.dataFields ? (
+                    <ChevronUpIcon className="w-4 h-4 text-[#767676]" />
+                  ) : (
+                    <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
+                  )}
+                </button>
+                {expandedColumnSections.dataFields && (
+                  <div className="mt-2">
+                    {/* Search */}
+                    <div className="relative mb-3">
+                      <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#767676]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <input
+                        type="text"
+                        placeholder="Search"
+                        value={columnSearch}
+                        onChange={(e) => setColumnSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-2 text-14 font-graphik-regular border border-[#e4e4e4] rounded-md focus:outline-none focus:border-[#248567]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      {availableColumns.dataFields
+                        .filter(c => c.label.toLowerCase().includes(columnSearch.toLowerCase()))
+                        .map((column) => (
+                          <label key={column.id} className="flex items-center gap-3 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={visibleColumns.includes(column.id)}
+                              onChange={() => toggleColumn(column.id)}
+                              className="w-4 h-4 rounded border-gray-300 text-[#248567] focus:ring-[#248567]"
+                            />
+                            <span className="text-14 font-graphik-regular text-[#2f2f2f]">{column.label}</span>
+                          </label>
+                        ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </>
+    );
+  };
+
   const renderPlaceholderView = (title) => (
     <div className="flex items-center justify-center h-[400px] bg-white border border-[#e4e4e4] rounded-lg">
       <div className="text-center">
@@ -390,7 +985,7 @@ const ReportsContent = () => {
       case 'usage-analytics':
         return renderPlaceholderView('Usage Analytics');
       case 'document-data':
-        return renderPlaceholderView('Document Data');
+        return renderDocumentDataView();
       default:
         return renderWorkflowOverview();
     }
