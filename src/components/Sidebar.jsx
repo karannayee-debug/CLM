@@ -98,7 +98,7 @@ const Sidebar = ({ activePage, onPageChange }) => {
     { icon: FormsIcon, label: 'Forms', disabled: true },
     { icon: AutomationsIcon, label: 'Automations', disabled: true },
     { icon: WorkflowsIcon, label: 'Workflows', beta: true, disabled: true },
-    { icon: ReportsIcon, label: 'Reports' },
+    { icon: ReportsIcon, label: 'Reports', page: 'Reports', active: activePage === 'Reports' },
     { icon: DevCenterIcon, label: 'Dev Center', disabled: true },
   ];
 
@@ -181,11 +181,20 @@ const Sidebar = ({ activePage, onPageChange }) => {
                 return (
                   <button
                     key={index}
-                    className={`nav-item ${item.disabled ? 'cursor-not-allowed' : ''}`}
+                    className={`nav-item ${item.disabled ? 'cursor-not-allowed' : ''} ${item.active ? 'active' : ''}`}
+                    style={item.active ? {
+                      backgroundColor: 'white',
+                      boxShadow: '0px 0px 1px 0px rgba(47,47,47,0.04), 0px 1px 4px 0px rgba(47,47,47,0.12)'
+                    } : {}}
                     disabled={item.disabled}
+                    onClick={() => {
+                      if (!item.disabled && item.page && onPageChange) {
+                        onPageChange(item.page);
+                      }
+                    }}
                   >
-                    <IconComponent className={`w-5 h-5 mr-3 ${item.disabled ? 'text-[#9CA3AF]' : 'text-[#474747]'}`} />
-                    <span className={`flex-1 text-left ${item.disabled ? 'text-[#9CA3AF]' : 'text-secondary-dark'}`}>{item.label}</span>
+                    <IconComponent className={`w-5 h-5 mr-3 ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-[#1D6A52]' : 'text-[#474747]'}`} />
+                    <span className={`flex-1 text-left ${item.disabled ? 'text-[#9CA3AF]' : item.active ? 'text-secondary-dark' : 'text-secondary-dark'}`}>{item.label}</span>
                     {item.beta && (
                       <span className={`text-[10px] font-graphik-semibold px-1.5 py-0.5 rounded ${item.disabled ? 'text-[#9CA3AF] bg-[#f5f5f5]' : 'text-[#767676] bg-[#f0f0f0]'}`}>BETA</span>
                     )}

@@ -5,6 +5,7 @@ import MainContent from './components/MainContent';
 import TemplatesContent from './components/TemplatesContent';
 import HomeContent from './components/HomeContent';
 import ContactsContent from './components/ContactsContent';
+import ReportsContent from './components/ReportsContent';
 import GmailImportModal from './components/GmailImportModal';
 import GetStartedPage from './components/GetStartedPage';
 import BulkImportPage from './components/BulkImportPage';
@@ -150,6 +151,9 @@ function App() {
           )}
           {activePage === 'Contacts' && (
             <ContactsContent />
+          )}
+          {activePage === 'Reports' && (
+            <ReportsContent />
           )}
         </main>
       </div>
