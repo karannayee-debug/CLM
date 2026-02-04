@@ -110,6 +110,8 @@ const ReportsContent = () => {
   const [showDocDataSignedDateDropdown, setShowDocDataSignedDateDropdown] = useState(false);
   const [docDataSignedDateCustom, setDocDataSignedDateCustom] = useState({ from: '', to: '' });
   const [showSignedDateCustomPicker, setShowSignedDateCustomPicker] = useState(false);
+  const [docDataTimeCustom, setDocDataTimeCustom] = useState({ from: '', to: '' });
+  const [showTimeCustomPicker, setShowTimeCustomPicker] = useState(false);
   const [showDocDataOptionsMenu, setShowDocDataOptionsMenu] = useState(false);
   const [showCreateReportModal, setShowCreateReportModal] = useState(false);
   const [newReportName, setNewReportName] = useState('');
@@ -626,30 +628,86 @@ const ReportsContent = () => {
                 }}
                 className="flex items-center gap-2 px-3 py-2 bg-white border border-[#e4e4e4] rounded-md text-14 font-graphik-regular text-[#2f2f2f] hover:border-[#248567]"
               >
-                {docDataTimeFilter === 'any' ? 'Any time' : docDataTimeFilter === 'today' ? 'Today' : docDataTimeFilter === 'week' ? 'This week' : docDataTimeFilter === 'month' ? 'This month' : 'This year'}
+                {docDataTimeFilter === 'any' ? 'Any time' : 
+                 docDataTimeFilter === 'last-day' ? 'Last Day' : 
+                 docDataTimeFilter === 'last-7-days' ? 'Last 7 Days' : 
+                 docDataTimeFilter === 'last-month' ? 'Last Month' : 
+                 docDataTimeFilter === 'last-3-months' ? 'Last 3 Months' : 
+                 docDataTimeFilter === 'last-6-months' ? 'Last 6 Months' : 
+                 docDataTimeFilter === 'last-year' ? 'Last Year' : 
+                 docDataTimeFilter}
                 <ChevronDownIcon className="w-4 h-4 text-[#767676]" />
               </button>
               {showDocDataTimeDropdown && (
-                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[150px]">
+                <div className="absolute top-full left-0 mt-1 bg-white border border-[#e4e4e4] rounded-lg shadow-lg z-50 min-w-[180px]">
                   <div className="py-1">
                     {[
                       { value: 'any', label: 'Any time' },
-                      { value: 'today', label: 'Today' },
-                      { value: 'week', label: 'This week' },
-                      { value: 'month', label: 'This month' },
-                      { value: 'year', label: 'This year' },
+                      { value: 'last-day', label: 'Last Day' },
+                      { value: 'last-7-days', label: 'Last 7 Days' },
+                      { value: 'last-month', label: 'Last Month' },
+                      { value: 'last-3-months', label: 'Last 3 Months' },
+                      { value: 'last-6-months', label: 'Last 6 Months' },
+                      { value: 'last-year', label: 'Last Year' },
                     ].map((option) => (
                       <button
                         key={option.value}
                         onClick={() => {
                           setDocDataTimeFilter(option.value);
                           setShowDocDataTimeDropdown(false);
+                          setShowTimeCustomPicker(false);
                         }}
                         className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 ${docDataTimeFilter === option.value ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
                       >
                         {option.label}
                       </button>
                     ))}
+                    {/* Custom Date Range Option */}
+                    <button
+                      onClick={() => setShowTimeCustomPicker(!showTimeCustomPicker)}
+                      className={`w-full text-left px-4 py-2 text-14 font-graphik-regular hover:bg-gray-50 flex items-center justify-between ${showTimeCustomPicker ? 'text-[#248567] bg-[#248567]/5' : 'text-[#2f2f2f]'}`}
+                    >
+                      Custom
+                      <ChevronDownIcon className={`w-4 h-4 transition-transform ${showTimeCustomPicker ? 'rotate-180' : ''}`} />
+                    </button>
+                    {showTimeCustomPicker && (
+                      <div className="px-4 py-3 border-t border-[#e4e4e4]">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="flex-1">
+                            <label className="block text-11 font-graphik-regular text-[#767676] mb-1">From</label>
+                            <input
+                              type="date"
+                              value={docDataTimeCustom.from}
+                              onChange={(e) => setDocDataTimeCustom(prev => ({ ...prev, from: e.target.value }))}
+                              className="w-full px-2 py-1.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-11 font-graphik-regular text-[#767676] mb-1">To</label>
+                            <input
+                              type="date"
+                              value={docDataTimeCustom.to}
+                              onChange={(e) => setDocDataTimeCustom(prev => ({ ...prev, to: e.target.value }))}
+                              className="w-full px-2 py-1.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            if (docDataTimeCustom.from && docDataTimeCustom.to) {
+                              const fromDate = new Date(docDataTimeCustom.from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                              const toDate = new Date(docDataTimeCustom.to).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                              setDocDataTimeFilter(`${fromDate} - ${toDate}`);
+                            }
+                            setShowDocDataTimeDropdown(false);
+                            setShowTimeCustomPicker(false);
+                          }}
+                          className="w-full px-4 py-2 bg-[#248567] text-white text-14 font-graphik-semibold rounded hover:bg-[#1D6A52]"
+                        >
+                          Apply
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
