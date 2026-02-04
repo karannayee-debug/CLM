@@ -170,6 +170,10 @@ function App() {
         <BulkImportPage 
           onClose={handleCloseBulkImport} 
           onImportComplete={handleBulkImportComplete}
+          onOpenDocument={(doc) => {
+            setShowBulkImportPage(false);
+            setViewingDocument(doc);
+          }}
         />
       )}
 

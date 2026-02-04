@@ -357,7 +357,7 @@ const InfoIcon = () => (
   </svg>
 );
 
-const BulkImportPage = ({ onClose, onImportComplete }) => {
+const BulkImportPage = ({ onClose, onImportComplete, onOpenDocument }) => {
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState('Completed');
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
@@ -457,28 +457,49 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
           {isWidgetExpanded && (
             <>
               <div className="max-h-[172px] overflow-y-auto">
-                {selectedFiles.map((file, index) => (
-                  <div 
-                    key={index} 
-                    className="flex items-center gap-4 px-4 py-3 border-b border-[#efefef] bg-white shadow-[0px_0px_1px_0px_rgba(47,47,47,0.08),0px_0.5px_2px_0px_rgba(47,47,47,0.12)]"
-                  >
-                    {/* Status icon */}
-                    <div className="flex-shrink-0">
-                      {fileStatuses[index] === 'imported' ? (
-                        <CheckmarkIcon />
-                      ) : fileStatuses[index] === 'processing' ? (
-                        <SpinnerIcon />
-                      ) : (
-                        <PendingIcon />
-                      )}
+                {selectedFiles.map((file, index) => {
+                  const isImported = fileStatuses[index] === 'imported';
+                  return (
+                    <div 
+                      key={index} 
+                      className={`flex items-center gap-4 px-4 py-3 border-b border-[#efefef] bg-white shadow-[0px_0px_1px_0px_rgba(47,47,47,0.08),0px_0.5px_2px_0px_rgba(47,47,47,0.12)] ${
+                        isImported ? 'cursor-pointer hover:bg-[#248567]/5 group' : ''
+                      }`}
+                      onClick={() => {
+                        if (isImported && onOpenDocument) {
+                          const doc = {
+                            id: `bulk-${Date.now()}-${index}`,
+                            name: file,
+                            company: 'Bulk Import',
+                            status: 'Completed',
+                            date: new Date().toISOString(),
+                            duration: 12,
+                            autoRenew: false,
+                          };
+                          onOpenDocument(doc);
+                        }
+                      }}
+                    >
+                      {/* Status icon */}
+                      <div className="flex-shrink-0">
+                        {isImported ? (
+                          <CheckmarkIcon />
+                        ) : fileStatuses[index] === 'processing' ? (
+                          <SpinnerIcon />
+                        ) : (
+                          <PendingIcon />
+                        )}
+                      </div>
+                      
+                      {/* File name */}
+                      <p className={`text-14 font-graphik-regular truncate ${
+                        isImported ? 'text-[#2f2f2f] group-hover:text-[#248567]' : 'text-[#2f2f2f]'
+                      }`}>
+                        {file}.pdf
+                      </p>
                     </div>
-                    
-                    {/* File name */}
-                    <p className="text-14 font-graphik-regular text-[#2f2f2f] truncate">
-                      {file}.pdf
-                    </p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* Footer with Cancel button */}
@@ -493,7 +514,7 @@ const BulkImportPage = ({ onClose, onImportComplete }) => {
                   } : handleCancelImport}
                   className="w-full py-2.5 bg-[#efefef] text-14 font-graphik-semibold text-[#2f2f2f] rounded hover:bg-[#e4e4e4] transition-colors"
                 >
-                  {allImported ? 'Done' : 'Cancel import'}
+                  {allImported ? 'View Files' : 'Cancel import'}
                 </button>
               </div>
             </>
