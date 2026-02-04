@@ -54,6 +54,16 @@ const DownloadIcon = ({ className }) => (
   </svg>
 );
 
+// AI Sparkle icon (two overlapping stars - purple)
+const AIStar = ({ className = "" }) => (
+  <svg className={`w-6 h-6 inline-block flex-shrink-0 ${className}`} viewBox="0 0 24 24" fill="none">
+    {/* Larger star */}
+    <path d="M14 1L15.8 8.2L23 10L15.8 11.8L14 19L12.2 11.8L5 10L12.2 8.2L14 1Z" fill="#7C3AED"/>
+    {/* Smaller star (bottom left corner - 20% larger) */}
+    <path d="M5.5 14L6.58 17.24L9.82 18.32L6.58 19.4L5.5 22.64L4.42 19.4L1.18 18.32L4.42 17.24L5.5 14Z" fill="#7C3AED"/>
+  </svg>
+);
+
 // Review data icon (database/data stack icon)
 const ReviewIcon = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -129,6 +139,16 @@ const DocumentViewerPage = ({ document, onClose }) => {
   const [duration, setDuration] = useState(document.duration ? String(document.duration) : '12');
   const [autoRenew, setAutoRenew] = useState(document.autoRenew || false);
   const [renewalDate, setRenewalDate] = useState('');
+  
+  // Additional fields for Review data panel
+  const [documentType, setDocumentType] = useState('Contract');
+  const [currency, setCurrency] = useState('USD');
+  const [paymentTerm, setPaymentTerm] = useState('Net 30');
+  const [venue, setVenue] = useState('');
+  
+  // Section expansion state
+  const [customSectionExpanded, setCustomSectionExpanded] = useState(true);
+  const [systemSectionExpanded, setSystemSectionExpanded] = useState(true);
 
   // Format date helper
   const formatDate = (dateString) => {
@@ -260,60 +280,46 @@ const DocumentViewerPage = ({ document, onClose }) => {
 
           {activePanel === 'review' && (
             <div className="mt-4">
-              {/* Document Info Section */}
+              {/* Custom Section */}
               <div className="border-t border-[#e4e4e4] pt-4">
                 <button 
-                  onClick={() => setDocumentInfoExpanded(!documentInfoExpanded)}
+                  onClick={() => setCustomSectionExpanded(!customSectionExpanded)}
                   className="w-full flex items-center justify-between py-2"
                 >
-                  <span className="text-12 font-graphik-semibold text-[#2f2f2f] uppercase tracking-wider">Document Info</span>
-                  <ChevronUpIcon className={`w-5 h-5 text-[#767676] transition-transform ${documentInfoExpanded ? '' : 'rotate-180'}`} />
+                  <span className="text-11 font-graphik-semibold text-[#767676] uppercase tracking-wider">Custom</span>
+                  <ChevronUpIcon className={`w-4 h-4 text-[#767676] transition-transform ${customSectionExpanded ? '' : 'rotate-180'}`} />
                 </button>
 
-                {documentInfoExpanded && (
+                {customSectionExpanded && (
                   <div className="mt-3 space-y-4">
-                    {/* Contract Value - editable */}
+                    {/* Contract Value */}
                     <div>
                       <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
                         Contract Value
                       </label>
-                      <div className="relative">
-                        <span className="text-14 font-graphik-regular text-[#767676] absolute left-3 top-1/2 -translate-y-1/2">$</span>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {contractValue && <AIStar className="ml-3" />}
+                        <span className="text-14 font-graphik-regular text-[#767676] pl-2">$</span>
                         <input 
                           type="text" 
                           value={contractValue}
                           onChange={(e) => setContractValue(e.target.value)}
-                          className="w-full pl-7 pr-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f]"
+                          className="flex-1 px-1 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent"
                         />
                       </div>
                     </div>
 
-                    {/* Duration - editable */}
-                    <div>
-                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
-                        Duration
-                      </label>
-                      <div className="relative">
-                        <input 
-                          type="text" 
-                          value={duration}
-                          onChange={(e) => setDuration(e.target.value)}
-                          className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] pr-16"
-                        />
-                        <span className="text-14 font-graphik-regular text-[#767676] absolute right-3 top-1/2 -translate-y-1/2">months</span>
-                      </div>
-                    </div>
-
-                    {/* Auto Renew - dropdown */}
+                    {/* Auto Renew */}
                     <div>
                       <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
                         Auto Renew
                       </label>
-                      <div className="relative">
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        <AIStar className="ml-3" />
                         <select 
                           value={autoRenew ? 'yes' : 'no'}
                           onChange={(e) => setAutoRenew(e.target.value === 'yes')}
-                          className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-white"
+                          className="flex-1 pl-2 pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none"
                         >
                           <option value="yes">Yes</option>
                           <option value="no">No</option>
@@ -322,17 +328,136 @@ const DocumentViewerPage = ({ document, onClose }) => {
                       </div>
                     </div>
 
-                    {/* Renewal Date - editable */}
+                    {/* Renewal Date */}
                     <div>
                       <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
                         Renewal Date
                       </label>
-                      <input 
-                        type="date" 
-                        value={renewalDate}
-                        onChange={(e) => setRenewalDate(e.target.value)}
-                        className="w-full px-3 py-2.5 border border-[#e4e4e4] rounded text-14 font-graphik-regular text-[#2f2f2f]"
-                      />
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {renewalDate && <AIStar className="ml-3" />}
+                        <input 
+                          type="date" 
+                          value={renewalDate}
+                          onChange={(e) => setRenewalDate(e.target.value)}
+                          className={`flex-1 ${renewalDate ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* System Section */}
+              <div className="border-t border-[#e4e4e4] pt-4 mt-4">
+                <button 
+                  onClick={() => setSystemSectionExpanded(!systemSectionExpanded)}
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="text-11 font-graphik-semibold text-[#767676] uppercase tracking-wider">System</span>
+                  <ChevronUpIcon className={`w-4 h-4 text-[#767676] transition-transform ${systemSectionExpanded ? '' : 'rotate-180'}`} />
+                </button>
+
+                {systemSectionExpanded && (
+                  <div className="mt-3 space-y-4">
+                    {/* Document Type */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Document Type
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {documentType && <AIStar className="ml-3" />}
+                        <select 
+                          value={documentType}
+                          onChange={(e) => setDocumentType(e.target.value)}
+                          className={`flex-1 ${documentType ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
+                        >
+                          <option value="Contract">Contract</option>
+                          <option value="NDA">NDA</option>
+                          <option value="Proposal">Proposal</option>
+                          <option value="Agreement">Agreement</option>
+                          <option value="Invoice">Invoice</option>
+                        </select>
+                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Duration (Term) */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Duration (Term)
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {duration && <AIStar className="ml-3" />}
+                        <input 
+                          type="text" 
+                          value={duration}
+                          onChange={(e) => setDuration(e.target.value)}
+                          className={`flex-1 ${duration ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
+                        />
+                        <span className="text-14 font-graphik-regular text-[#767676] pr-3">months</span>
+                      </div>
+                    </div>
+
+                    {/* Currency */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Currency
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {currency && <AIStar className="ml-3" />}
+                        <select 
+                          value={currency}
+                          onChange={(e) => setCurrency(e.target.value)}
+                          className={`flex-1 ${currency ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
+                        >
+                          <option value="USD">USD - US Dollar</option>
+                          <option value="EUR">EUR - Euro</option>
+                          <option value="GBP">GBP - British Pound</option>
+                          <option value="CAD">CAD - Canadian Dollar</option>
+                          <option value="AUD">AUD - Australian Dollar</option>
+                        </select>
+                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Payment Term */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Payment Term
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {paymentTerm && <AIStar className="ml-3" />}
+                        <select 
+                          value={paymentTerm}
+                          onChange={(e) => setPaymentTerm(e.target.value)}
+                          className={`flex-1 ${paymentTerm ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
+                        >
+                          <option value="Net 15">Net 15</option>
+                          <option value="Net 30">Net 30</option>
+                          <option value="Net 45">Net 45</option>
+                          <option value="Net 60">Net 60</option>
+                          <option value="Net 90">Net 90</option>
+                          <option value="Due on Receipt">Due on Receipt</option>
+                        </select>
+                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Venue */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Venue
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        {venue && <AIStar className="ml-3" />}
+                        <input 
+                          type="text" 
+                          value={venue}
+                          onChange={(e) => setVenue(e.target.value)}
+                          placeholder="Enter venue/jurisdiction"
+                          className={`flex-1 ${venue ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
+                        />
+                      </div>
                     </div>
                   </div>
                 )}
