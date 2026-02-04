@@ -108,13 +108,13 @@ const FilterBar = ({
   // Additional filters that can be added via "More +" - Custom section
   const customFilters = [
     { id: 'auto-renew', label: 'Auto Renew' },
-    { id: 'document-type', label: 'Document Type' },
-    { id: 'duration', label: 'Duration (term)' },
     { id: 'renewal-date', label: 'Renewal Date' },
   ];
 
   // System filters
   const systemFilters = [
+    { id: 'document-type', label: 'Document Type' },
+    { id: 'duration', label: 'Duration (term)' },
     { id: 'currency', label: 'Currency' },
     { id: 'payment-term', label: 'Payment Term' },
     { id: 'venue', label: 'Venue' },
