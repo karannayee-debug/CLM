@@ -512,7 +512,11 @@ const BulkImportPage = ({ onClose, onImportComplete, onOpenDocument }) => {
                       onClose();
                     }
                   } : handleCancelImport}
-                  className="w-full py-2.5 bg-[#efefef] text-14 font-graphik-semibold text-[#2f2f2f] rounded hover:bg-[#e4e4e4] transition-colors"
+                  className={`w-full py-2.5 text-14 font-graphik-semibold rounded transition-colors ${
+                    allImported
+                      ? 'bg-[#EDF5F3] text-[#248567] hover:bg-[#e0efe9]'
+                      : 'bg-[#efefef] text-[#2f2f2f] hover:bg-[#e4e4e4]'
+                  }`}
                 >
                   {allImported ? 'View Files' : 'Cancel import'}
                 </button>
