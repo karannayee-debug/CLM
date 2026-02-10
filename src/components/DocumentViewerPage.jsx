@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { XIcon, ChevronDownIcon } from './Icons';
+import sparkleIcon from '../sparkle (1).svg';
 
 // Document icon
 const DocumentIcon = ({ className }) => (
@@ -54,14 +55,9 @@ const DownloadIcon = ({ className }) => (
   </svg>
 );
 
-// AI Sparkle icon (two overlapping stars - purple)
+// AI Sparkle icon (from asset)
 const AIStar = ({ className = "" }) => (
-  <svg className={`w-6 h-6 inline-block flex-shrink-0 ${className}`} viewBox="0 0 24 24" fill="none">
-    {/* Larger star */}
-    <path d="M14 1L15.8 8.2L23 10L15.8 11.8L14 19L12.2 11.8L5 10L12.2 8.2L14 1Z" fill="#7C3AED"/>
-    {/* Smaller star (bottom left corner - 20% larger) */}
-    <path d="M5.5 14L6.58 17.24L9.82 18.32L6.58 19.4L5.5 22.64L4.42 19.4L1.18 18.32L4.42 17.24L5.5 14Z" fill="#7C3AED"/>
-  </svg>
+  <img src={sparkleIcon} alt="" className={`w-6 h-6 inline-block flex-shrink-0 ${className}`} />
 );
 
 // Review data icon (database/data stack icon)
@@ -150,6 +146,15 @@ const DocumentViewerPage = ({ document, onClose }) => {
   const [customSectionExpanded, setCustomSectionExpanded] = useState(true);
   const [systemSectionExpanded, setSystemSectionExpanded] = useState(true);
 
+  // Track which fields have been manually edited (hide sparkle icon once edited)
+  const [manuallyEditedFields, setManuallyEditedFields] = useState(() => new Set());
+
+  const markFieldManuallyEdited = (fieldKey) => {
+    setManuallyEditedFields((prev) => new Set(prev).add(fieldKey));
+  };
+
+  const showSparkle = (fieldKey, hasValue) => hasValue && !manuallyEditedFields.has(fieldKey);
+
   // Format date helper
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -197,7 +202,7 @@ const DocumentViewerPage = ({ document, onClose }) => {
     review: {
       icon: DataIcon,
       title: 'Data',
-      description: 'Fill out fields to collect document information used to create reports and filter search results.'
+      description: 'Review AI-extracted data to make filtering and reporting more accurate. '
     }
   };
 
@@ -227,7 +232,7 @@ const DocumentViewerPage = ({ document, onClose }) => {
           <p className="text-13 font-graphik-regular text-[#767676] mb-1">
             {config.description}
             {activePanel === 'review' && (
-              <button className="text-[#248567] hover:underline ml-1">Learn more</button>
+              <a href="#" className="text-[#248567] hover:underline ml-0">Learn more</a>
             )}
           </p>
 
@@ -298,12 +303,12 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Contract Value
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {contractValue && <AIStar className="ml-3" />}
+                        {showSparkle('contractValue', !!contractValue) && <AIStar className="ml-3" />}
                         <span className="text-14 font-graphik-regular text-[#767676] pl-2">$</span>
                         <input 
                           type="text" 
                           value={contractValue}
-                          onChange={(e) => setContractValue(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('contractValue'); setContractValue(e.target.value); }}
                           className="flex-1 px-1 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent"
                         />
                       </div>
@@ -315,10 +320,10 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Auto Renew
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        <AIStar className="ml-3" />
+                        {showSparkle('autoRenew', true) && <AIStar className="ml-3" />}
                         <select 
                           value={autoRenew ? 'yes' : 'no'}
-                          onChange={(e) => setAutoRenew(e.target.value === 'yes')}
+                          onChange={(e) => { markFieldManuallyEdited('autoRenew'); setAutoRenew(e.target.value === 'yes'); }}
                           className="flex-1 pl-2 pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none"
                         >
                           <option value="yes">Yes</option>
@@ -334,11 +339,11 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Renewal Date
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {renewalDate && <AIStar className="ml-3" />}
+                        {showSparkle('renewalDate', !!renewalDate) && <AIStar className="ml-3" />}
                         <input 
                           type="date" 
                           value={renewalDate}
-                          onChange={(e) => setRenewalDate(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('renewalDate'); setRenewalDate(e.target.value); }}
                           className={`flex-1 ${renewalDate ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
                         />
                       </div>
@@ -365,10 +370,10 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Document Type
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {documentType && <AIStar className="ml-3" />}
+                        {showSparkle('documentType', !!documentType) && <AIStar className="ml-3" />}
                         <select 
                           value={documentType}
-                          onChange={(e) => setDocumentType(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('documentType'); setDocumentType(e.target.value); }}
                           className={`flex-1 ${documentType ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
                         >
                           <option value="Contract">Contract</option>
@@ -387,11 +392,11 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Duration (Term)
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {duration && <AIStar className="ml-3" />}
+                        {showSparkle('duration', !!duration) && <AIStar className="ml-3" />}
                         <input 
                           type="text" 
                           value={duration}
-                          onChange={(e) => setDuration(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('duration'); setDuration(e.target.value); }}
                           className={`flex-1 ${duration ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
                         />
                         <span className="text-14 font-graphik-regular text-[#767676] pr-3">months</span>
@@ -404,10 +409,10 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Currency
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {currency && <AIStar className="ml-3" />}
+                        {showSparkle('currency', !!currency) && <AIStar className="ml-3" />}
                         <select 
                           value={currency}
-                          onChange={(e) => setCurrency(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('currency'); setCurrency(e.target.value); }}
                           className={`flex-1 ${currency ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
                         >
                           <option value="USD">USD - US Dollar</option>
@@ -426,10 +431,10 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Payment Term
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {paymentTerm && <AIStar className="ml-3" />}
+                        {showSparkle('paymentTerm', !!paymentTerm) && <AIStar className="ml-3" />}
                         <select 
                           value={paymentTerm}
-                          onChange={(e) => setPaymentTerm(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('paymentTerm'); setPaymentTerm(e.target.value); }}
                           className={`flex-1 ${paymentTerm ? 'pl-2' : 'pl-3'} pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none`}
                         >
                           <option value="Net 15">Net 15</option>
@@ -449,11 +454,11 @@ const DocumentViewerPage = ({ document, onClose }) => {
                         Venue
                       </label>
                       <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {venue && <AIStar className="ml-3" />}
+                        {showSparkle('venue', !!venue) && <AIStar className="ml-3" />}
                         <input 
                           type="text" 
                           value={venue}
-                          onChange={(e) => setVenue(e.target.value)}
+                          onChange={(e) => { markFieldManuallyEdited('venue'); setVenue(e.target.value); }}
                           placeholder="Enter venue/jurisdiction"
                           className={`flex-1 ${venue ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
                         />
