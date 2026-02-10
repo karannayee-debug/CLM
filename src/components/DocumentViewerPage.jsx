@@ -285,75 +285,8 @@ const DocumentViewerPage = ({ document, onClose }) => {
 
           {activePanel === 'review' && (
             <div className="mt-4">
-              {/* Custom Section */}
-              <div className="border-t border-[#e4e4e4] pt-4">
-                <button 
-                  onClick={() => setCustomSectionExpanded(!customSectionExpanded)}
-                  className="w-full flex items-center justify-between py-2"
-                >
-                  <span className="text-11 font-graphik-semibold text-[#767676] uppercase tracking-wider">Custom</span>
-                  <ChevronUpIcon className={`w-4 h-4 text-[#767676] transition-transform ${customSectionExpanded ? '' : 'rotate-180'}`} />
-                </button>
-
-                {customSectionExpanded && (
-                  <div className="mt-3 space-y-4">
-                    {/* Contract Value */}
-                    <div>
-                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
-                        Contract Value
-                      </label>
-                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {showSparkle('contractValue', !!contractValue) && <AIStar className="ml-3" />}
-                        <span className="text-14 font-graphik-regular text-[#767676] pl-2">$</span>
-                        <input 
-                          type="text" 
-                          value={contractValue}
-                          onChange={(e) => { markFieldManuallyEdited('contractValue'); setContractValue(e.target.value); }}
-                          className="flex-1 px-1 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Auto Renew */}
-                    <div>
-                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
-                        Auto Renew
-                      </label>
-                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {showSparkle('autoRenew', true) && <AIStar className="ml-3" />}
-                        <select 
-                          value={autoRenew ? 'yes' : 'no'}
-                          onChange={(e) => { markFieldManuallyEdited('autoRenew'); setAutoRenew(e.target.value === 'yes'); }}
-                          className="flex-1 pl-2 pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none"
-                        >
-                          <option value="yes">Yes</option>
-                          <option value="no">No</option>
-                        </select>
-                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                      </div>
-                    </div>
-
-                    {/* Renewal Date */}
-                    <div>
-                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
-                        Renewal Date
-                      </label>
-                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
-                        {showSparkle('renewalDate', !!renewalDate) && <AIStar className="ml-3" />}
-                        <input 
-                          type="date" 
-                          value={renewalDate}
-                          onChange={(e) => { markFieldManuallyEdited('renewalDate'); setRenewalDate(e.target.value); }}
-                          className={`flex-1 ${renewalDate ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-
               {/* System Section */}
-              <div className="border-t border-[#e4e4e4] pt-4 mt-4">
+              <div className="border-t border-[#e4e4e4] pt-4">
                 <button 
                   onClick={() => setSystemSectionExpanded(!systemSectionExpanded)}
                   className="w-full flex items-center justify-between py-2"
@@ -461,6 +394,70 @@ const DocumentViewerPage = ({ document, onClose }) => {
                           onChange={(e) => { markFieldManuallyEdited('venue'); setVenue(e.target.value); }}
                           placeholder="Enter venue/jurisdiction"
                           className={`flex-1 ${venue ? 'pl-2' : 'pl-3'} pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Custom Section */}
+              <div className="border-t border-[#e4e4e4] pt-4 mt-4">
+                <button 
+                  onClick={() => setCustomSectionExpanded(!customSectionExpanded)}
+                  className="w-full flex items-center justify-between py-2"
+                >
+                  <span className="text-11 font-graphik-semibold text-[#767676] uppercase tracking-wider">Custom</span>
+                  <ChevronUpIcon className={`w-4 h-4 text-[#767676] transition-transform ${customSectionExpanded ? '' : 'rotate-180'}`} />
+                </button>
+
+                {customSectionExpanded && (
+                  <div className="mt-3 space-y-4">
+                    {/* Contract Value */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Contract Value
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        <span className="text-14 font-graphik-regular text-[#767676] pl-3">$</span>
+                        <input 
+                          type="text" 
+                          value={contractValue}
+                          onChange={(e) => { markFieldManuallyEdited('contractValue'); setContractValue(e.target.value); }}
+                          className="flex-1 px-1 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Auto Renew */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Auto Renew
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        <select 
+                          value={autoRenew ? 'yes' : 'no'}
+                          onChange={(e) => { markFieldManuallyEdited('autoRenew'); setAutoRenew(e.target.value === 'yes'); }}
+                          className="flex-1 pl-3 pr-8 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] appearance-none bg-transparent border-0 outline-none"
+                        >
+                          <option value="yes">Yes</option>
+                          <option value="no">No</option>
+                        </select>
+                        <ChevronDownIcon className="w-5 h-5 text-[#767676] absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Renewal Date */}
+                    <div>
+                      <label className="text-[10px] font-graphik-regular text-[#767676] uppercase tracking-wider block mb-1.5">
+                        Renewal Date
+                      </label>
+                      <div className="relative flex items-center border border-[#e4e4e4] rounded bg-white">
+                        <input 
+                          type="date" 
+                          value={renewalDate}
+                          onChange={(e) => { markFieldManuallyEdited('renewalDate'); setRenewalDate(e.target.value); }}
+                          className="flex-1 pl-3 pr-3 py-2.5 text-14 font-graphik-regular text-[#2f2f2f] border-0 outline-none bg-transparent"
                         />
                       </div>
                     </div>
